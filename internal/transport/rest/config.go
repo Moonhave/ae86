@@ -6,6 +6,7 @@ type Config struct {
 	TLSEnable bool
 	CertFile  string
 	KeyFile   string
+	BotToken  string
 }
 
 func (c Config) Address() string {
