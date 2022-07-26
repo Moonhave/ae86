@@ -64,6 +64,26 @@ type ProductChoice struct {
 	Count   int
 }
 
+func Start(config Config) error {
+	b, err := tele.NewBot(tele.Settings{
+		Token: config.Token,
+		Poller: &tele.LongPoller{
+			Timeout: config.LongPollerTimeout,
+		},
+	})
+	if err != nil {
+		return err
+	}
+
+	LoadCategories(b)
+	InitializeMenuReplies()
+	RegisterEndpointCallbacks(b)
+	RegisterButtonCallbacks(b)
+
+	b.Start()
+	return nil
+}
+
 // temp storage
 var userStorage = make(map[int64]*TempUserInfo)
 
