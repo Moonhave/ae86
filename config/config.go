@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 )
 
 // Config - config storage
@@ -36,7 +37,8 @@ type HTTP struct {
 
 // Bot - bot config storage
 type Bot struct {
-	Token string
+	Token             string
+	LongPollerTimeout time.Duration
 }
 
 // Get - read config and return as Config struct
@@ -65,7 +67,8 @@ func Get(configPath, envPrefix string) (Config, error) {
 			KeyFile:   viper.GetString("http.key_file"),
 		},
 		Bot: Bot{
-			Token: viper.GetString("bot.token"),
+			Token:             viper.GetString("bot.token"),
+			LongPollerTimeout: viper.GetDuration("bot.long_poller_timeout"),
 		},
 	}
 
@@ -114,6 +117,7 @@ func setDefaults() {
 	viper.SetDefault("http.cert_file", "")
 	viper.SetDefault("http.key_file", "")
 	viper.SetDefault("bot.token", "")
+	viper.SetDefault("bot.long_poller_timeout", 10*time.Second)
 }
 
 // createConfigFile - creates config file

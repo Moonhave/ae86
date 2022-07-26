@@ -4,32 +4,20 @@ import (
 	"ae86/internal/container"
 	"ae86/internal/transport/bot"
 	"ae86/internal/transport/rest"
-	tele "gopkg.in/telebot.v3"
-	"log"
-	"time"
 )
 
-func Start(conf rest.Config, restContainer *container.RestContainer) error {
-	// telegram bot start
-	pref := tele.Settings{
-		Token:  conf.BotToken,
-		Poller: &tele.LongPoller{Timeout: 10 * time.Second},
-	}
+type Config struct {
+	Rest rest.Config
+	Bot  bot.Config
+}
 
-	b, err := tele.NewBot(pref)
+func Start(config Config, restContainer *container.RestContainer) error {
+	err := bot.Start(config.Bot)
 	if err != nil {
-		log.Fatal(err)
-		return nil
+		return err
 	}
 
-	bot.LoadCategories(b)
-	bot.InitializeMenuReplies()
-	bot.RegisterEndpointCallbacks(b)
-	bot.RegisterButtonCallbacks(b)
-
-	b.Start()
-
-	err = rest.Start(conf, restContainer)
+	err = rest.Start(config.Rest, restContainer)
 	if err != nil {
 		return err
 	}

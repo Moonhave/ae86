@@ -4,6 +4,7 @@ import (
 	"ae86/config"
 	"ae86/internal/container"
 	"ae86/internal/transport"
+	"ae86/internal/transport/bot"
 	"ae86/internal/transport/rest"
 	"ae86/pkg/client/postgres"
 	"ae86/pkg/logger"
@@ -28,13 +29,18 @@ func Run(conf config.Config) error {
 	service := container.NewServiceContainer(storage)
 	controller := container.NewRestContainer(service)
 
-	transportConfig := rest.Config{
-		Host:      conf.HTTP.Host,
-		Port:      conf.HTTP.Port,
-		TLSEnable: conf.HTTP.TLSEnable,
-		CertFile:  conf.HTTP.CertFile,
-		KeyFile:   conf.HTTP.KeyFile,
-		BotToken:  conf.Bot.Token,
+	transportConfig := transport.Config{
+		Rest: rest.Config{
+			Host:      conf.HTTP.Host,
+			Port:      conf.HTTP.Port,
+			TLSEnable: conf.HTTP.TLSEnable,
+			CertFile:  conf.HTTP.CertFile,
+			KeyFile:   conf.HTTP.KeyFile,
+		},
+		Bot: bot.Config{
+			Token:             conf.Bot.Token,
+			LongPollerTimeout: conf.Bot.LongPollerTimeout,
+		},
 	}
 
 	return transport.Start(transportConfig, controller)
