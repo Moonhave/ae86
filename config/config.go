@@ -36,7 +36,7 @@ type HTTP struct {
 
 // Bot - bot config storage
 type Bot struct {
-	BotToken string
+	Token string
 }
 
 // Get - read config and return as Config struct
@@ -65,7 +65,7 @@ func Get(configPath, envPrefix string) (Config, error) {
 			KeyFile:   viper.GetString("http.key_file"),
 		},
 		Bot: Bot{
-			BotToken: viper.GetString("bot.token"),
+			Token: viper.GetString("bot.token"),
 		},
 	}
 
