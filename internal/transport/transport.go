@@ -2,13 +2,22 @@ package transport
 
 import (
 	"ae86/internal/container"
+	"ae86/internal/transport/bot"
 	"ae86/internal/transport/rest"
 )
 
-func Start(conf rest.Config, restContainer *container.RestContainer) error {
-	// telegram bot start
+type Config struct {
+	Rest rest.Config
+	Bot  bot.Config
+}
 
-	err := rest.Start(conf, restContainer)
+func Start(config Config, restContainer *container.RestContainer) error {
+	err := bot.Start(config.Bot)
+	if err != nil {
+		return err
+	}
+
+	err = rest.Start(config.Rest, restContainer)
 	if err != nil {
 		return err
 	}

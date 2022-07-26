@@ -8,6 +8,7 @@ require (
 	github.com/sirupsen/logrus v1.8.1
 	github.com/spf13/viper v1.12.0
 	github.com/urfave/cli/v2 v2.8.1
+	gopkg.in/telebot.v3 v3.0.0
 	gorm.io/driver/postgres v1.3.7
 	gorm.io/gorm v1.23.4
 )
