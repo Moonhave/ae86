@@ -17,6 +17,5 @@ jobs:
           to: ${{ secrets.TELEGRAM_TO }}
           token: ${{ secrets.TELEGRAM_TOKEN }}
           message: |
-            ${{ github.actor }} created commit:
-            commit_message: ${{ github.event.commits[0].message }}
-            repository: ${{ github.repository }}
+            ${{ github.actor }} opened [pull request](https://github.com/${{ github.repository }}/pull/${{ github.event.pull_request.number }}) to ${{ github.repository }} 
+            ${{ github.event.pull_request.title }}
