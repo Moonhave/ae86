@@ -1,6 +1,7 @@
 package bot
 
 import (
+	"ae86/internal/container"
 	"ae86/internal/model"
 	"fmt"
 	tele "gopkg.in/telebot.v3"
@@ -64,7 +65,7 @@ type ProductChoice struct {
 	Count   int
 }
 
-func Start(config Config) error {
+func Start(config Config, handlers *container.HandlerContainer) error {
 	b, err := tele.NewBot(tele.Settings{
 		Token: config.Token,
 		Poller: &tele.LongPoller{
@@ -74,6 +75,8 @@ func Start(config Config) error {
 	if err != nil {
 		return err
 	}
+
+	//RegisterCommands(b, handlers)
 
 	LoadCategories(b)
 	InitializeMenuReplies()
