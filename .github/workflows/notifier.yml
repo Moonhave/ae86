@@ -19,5 +19,5 @@ jobs:
           disable_web_page_preview: true
           format: html
           message: |
-            <b>${{ github.actor }}</b> opened <a href="${{ github.event.path }}">pull request</a> to ${{ repo }} 
+            <b>${{ github.actor }}</b> opened <a href="${{ github.event.path }}">pull request</a> to ${{ github.repository }} 
             <pre>${{ github.event.name }}</pre>
