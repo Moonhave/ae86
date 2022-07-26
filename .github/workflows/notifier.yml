@@ -16,6 +16,7 @@ jobs:
         with:
           to: ${{ secrets.TELEGRAM_TO }}
           token: ${{ secrets.TELEGRAM_TOKEN }}
+          format: html
           message: |
             <b>${{ github.actor }}</b> opened <a href="https://github.com/${{ github.repository }}/pull/${{ github.event.pull_request.number }}">pull request</a> to ${{ github.repository }} 
             <pre>${{ github.event.pull_request.title }}</pre>
