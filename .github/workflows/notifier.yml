@@ -12,11 +12,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: send custom message
-      - uses: appleboy/telegram-action@master
-      - uses: gaurav-nelson/github-action-markdown-link-check@master
+      uses: appleboy/telegram-action@master
         with:
           to: ${{ secrets.TELEGRAM_TO }}
           token: ${{ secrets.TELEGRAM_TOKEN }}
           message: |
-            ${{ github.actor }} opened [pull request](https://github.com/${{ github.repository }}/pull/${{ github.event.pull_request.number }}) to ${{ github.repository }} 
-            ${{ github.event.pull_request.title }}
+            <b>${{ github.actor }}</b> opened <a href="https://github.com/${{ github.repository }}/pull/${{ github.event.pull_request.number }}">pull request</a> to ${{ github.repository }} 
+            <pre>${{ github.event.pull_request.title }}</pre>
