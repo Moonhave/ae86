@@ -34,7 +34,7 @@ func Run(conf config.Config) error {
 		TLSEnable: conf.HTTP.TLSEnable,
 		CertFile:  conf.HTTP.CertFile,
 		KeyFile:   conf.HTTP.KeyFile,
-		BotToken:  conf.Bot.BotToken,
+		BotToken:  conf.Bot.Token,
 	}
 
 	return transport.Start(transportConfig, controller)
