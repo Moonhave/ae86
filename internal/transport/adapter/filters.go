@@ -16,6 +16,6 @@ type OrderFilter struct {
 	State         *enums.OrderState
 	PaymentMethod *enums.PaymentMethod
 	CustomerID    *uint
-	StoreID       *uint
 	IsDeleted     *bool
+	StoreID       *uint
 }

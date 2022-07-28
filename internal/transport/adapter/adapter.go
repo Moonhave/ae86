@@ -16,11 +16,11 @@ type ManagerService interface {
 	GetAllManagers() (result []model.Manager)
 }
 
-type StoreService interface{}
-
 type CategoryService interface {
 	GetAllCategories() (result []model.Category)
 }
+
+type StoreService interface{}
 
 type ProductService interface {
 	GetProductByCategory(categoryId int) (result []model.Product)
