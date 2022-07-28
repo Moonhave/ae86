@@ -11,13 +11,13 @@ type Config struct {
 	Bot  bot.Config
 }
 
-func Start(config Config, restContainer *container.RestContainer) error {
-	err := bot.Start(config.Bot)
+func Start(config Config, restControllers *container.RestContainer, botHandlers *container.HandlerContainer) error {
+	err := bot.Start(config.Bot, botHandlers)
 	if err != nil {
 		return err
 	}
 
-	err = rest.Start(config.Rest, restContainer)
+	err = rest.Start(config.Rest, restControllers)
 	if err != nil {
 		return err
 	}
