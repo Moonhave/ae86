@@ -13,9 +13,6 @@ type TempUserInfo struct {
 	IsSettingAddress bool
 }
 
-// the bot
-var bot *tele.Bot
-
 // temp user storage
 var userStorage = make(map[int64]*TempUserInfo)
 
@@ -27,8 +24,7 @@ func getCurrentUser(c tele.Context) *TempUserInfo {
 }
 
 func Start(config Config) error {
-	var err error
-	bot, err = tele.NewBot(tele.Settings{
+	bot, err := tele.NewBot(tele.Settings{
 		Token: config.Token,
 		Poller: &tele.LongPoller{
 			Timeout: config.LongPollerTimeout,
@@ -38,16 +34,16 @@ func Start(config Config) error {
 		return err
 	}
 
-	LoadCategories()
+	LoadCategories(bot)
 	InitializeMenuReplies()
-	RegisterEndpointCallbacks()
-	RegisterButtonCallbacks()
+	RegisterEndpointCallbacks(bot)
+	RegisterButtonCallbacks(bot)
 
 	bot.Start()
 	return nil
 }
 
-func LoadCategories() {
+func LoadCategories(bot *tele.Bot) {
 	// TODO: populate with actual categories from db
 	var categories = []model.Category{{Title: "Пицца"}, {Title: "Суши"}, {Title: "Десерты"}, {Title: "Напитки"}}
 
@@ -56,7 +52,7 @@ func LoadCategories() {
 		categoryMenuRows = append(categoryMenuRows, categoryMenu.Row(btn))
 
 		bot.Handle(&btn, func(c tele.Context) error {
-			messages, menus := loadProducts(category)
+			messages, menus := loadProducts(bot, category)
 			for i := range messages {
 				c.Send(messages[i], menus[i])
 			}
@@ -67,7 +63,7 @@ func LoadCategories() {
 	categoryMenuRows = append(categoryMenuRows, categoryMenu.Row(btnCategoryBack))
 }
 
-func loadProducts(category model.Category) (messages []string, markups []*tele.ReplyMarkup) {
+func loadProducts(bot *tele.Bot, category model.Category) (messages []string, markups []*tele.ReplyMarkup) {
 	// TODO: get products from db depending on category
 
 	var testProducts = []model.Product{
@@ -103,7 +99,7 @@ func loadProducts(category model.Category) (messages []string, markups []*tele.R
 
 		p := product
 		text := fmt.Sprintf("%s\n%s\nЦена: %d тенге", p.Title, p.Description, p.Price)
-		handleAddToCartButton(btnAddToCart, testProducts)
+		handleAddToCartButton(bot, btnAddToCart, testProducts)
 
 		messages = append(messages, text)
 		markups = append(markups, productInfoMenu)
@@ -111,7 +107,7 @@ func loadProducts(category model.Category) (messages []string, markups []*tele.R
 	return messages, markups
 }
 
-func handleAddToCartButton(btn tele.Btn, products []model.Product) {
+func handleAddToCartButton(bot *tele.Bot, btn tele.Btn, products []model.Product) {
 	numMenu := &tele.ReplyMarkup{ResizeKeyboard: true}
 	bot.Handle(&btn, func(c tele.Context) error {
 		var buttonRows []tele.Row
@@ -127,7 +123,7 @@ func handleAddToCartButton(btn tele.Btn, products []model.Product) {
 				buttonRows = append(buttonRows, numMenu.Row(currentRow...))
 				currentRow = []tele.Btn{}
 			}
-			handleAddProductButton(btn, &model.OrderItem{
+			handleAddProductButton(bot, btn, &model.OrderItem{
 				Product: &product,
 				Amount:  i,
 			})
@@ -139,7 +135,7 @@ func handleAddToCartButton(btn tele.Btn, products []model.Product) {
 	})
 }
 
-func handleAddProductButton(btn tele.Btn, orderItem *model.OrderItem) {
+func handleAddProductButton(bot *tele.Bot, btn tele.Btn, orderItem *model.OrderItem) {
 	bot.Handle(&btn, func(c tele.Context) error {
 		getCurrentUser(c).Cart = append(getCurrentUser(c).Cart, orderItem)
 		buttonRows := []tele.Row{
@@ -186,7 +182,7 @@ func InitializeMenuReplies() {
 	productMenu.Reply()
 }
 
-func RegisterEndpointCallbacks() {
+func RegisterEndpointCallbacks(bot *tele.Bot) {
 	bot.Handle("/start", func(c tele.Context) error {
 		userStorage[c.Sender().ID] = &TempUserInfo{
 			Cart:             []*model.OrderItem{},
@@ -196,7 +192,7 @@ func RegisterEndpointCallbacks() {
 	})
 }
 
-func RegisterButtonCallbacks() {
+func RegisterButtonCallbacks(bot *tele.Bot) {
 	bot.Handle(&btnCategories, func(c tele.Context) error {
 		return c.Send(categoryMenuMessage, categoryMenu)
 	})
