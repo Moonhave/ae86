@@ -1,5 +1,7 @@
 package adapter
 
+import "ae86/internal/model"
+
 type ServiceContainer interface {
 	Manager() ManagerService
 	Store() StoreService
@@ -10,16 +12,28 @@ type ServiceContainer interface {
 	OrderItem() OrderItemService
 }
 
-type ManagerService interface{}
+type ManagerService interface {
+	GetAllManagers() (result []model.Manager)
+}
+
+type CategoryService interface {
+	GetAllCategories() (result []model.Category)
+}
 
 type StoreService interface{}
 
-type CategoryService interface{}
+type ProductService interface {
+	GetProductByCategory(categoryId int) (result []model.Product)
+}
 
-type ProductService interface{}
+type CustomerService interface {
+	CreateCustomer(customer model.Customer) (id uint, err error)
+}
 
-type CustomerService interface{}
+type OrderService interface {
+	GetOrderList(filter OrderFilter) (result []model.Order, err error)
+}
 
-type OrderService interface{}
-
-type OrderItemService interface{}
+type OrderItemService interface {
+	CreateOrder(order model.Order) (id uint, err error)
+}
