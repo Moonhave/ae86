@@ -1,6 +1,7 @@
 package bot
 
 import (
+	"ae86/internal/container"
 	"ae86/internal/model"
 	"fmt"
 	tele "gopkg.in/telebot.v3"
@@ -23,7 +24,7 @@ func getCurrentUser(c tele.Context) *TempUserInfo {
 	return userStorage[c.Sender().ID]
 }
 
-func Start(config Config) error {
+func Start(config Config, handlers *container.HandlerContainer) error {
 	bot, err := tele.NewBot(tele.Settings{
 		Token: config.Token,
 		Poller: &tele.LongPoller{
@@ -36,8 +37,8 @@ func Start(config Config) error {
 
 	LoadCategories(bot)
 	InitializeMenuReplies()
-	RegisterEndpointCallbacks(bot)
-	RegisterButtonCallbacks(bot)
+	RegisterEndpointCallbacks(bot, handlers)
+	RegisterButtonCallbacks(bot, handlers)
 
 	bot.Start()
 	return nil
@@ -182,7 +183,7 @@ func InitializeMenuReplies() {
 	productMenu.Reply()
 }
 
-func RegisterEndpointCallbacks(bot *tele.Bot) {
+func RegisterEndpointCallbacks(bot *tele.Bot, handlers *container.HandlerContainer) {
 	bot.Handle("/start", func(c tele.Context) error {
 		userStorage[c.Sender().ID] = &TempUserInfo{
 			Cart:             []*model.OrderItem{},
@@ -192,7 +193,7 @@ func RegisterEndpointCallbacks(bot *tele.Bot) {
 	})
 }
 
-func RegisterButtonCallbacks(bot *tele.Bot) {
+func RegisterButtonCallbacks(bot *tele.Bot, handlers *container.HandlerContainer) {
 	bot.Handle(&btnCategories, func(c tele.Context) error {
 		return c.Send(categoryMenuMessage, categoryMenu)
 	})
