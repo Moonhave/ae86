@@ -1,11 +1,10 @@
-name: Notifier
+name: pull_request_notifier
 
 on:
   pull_request:
     branches: [ develop ]
 
 jobs:
-
   notifyTelegram:
     runs-on: ubuntu-latest
     steps:

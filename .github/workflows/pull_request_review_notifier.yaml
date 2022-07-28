@@ -1,0 +1,20 @@
+name: pull_request_review_notifier
+
+on:
+  pull_request_review:
+    branches: [ develop ]
+
+jobs:
+  notifyTelegram:
+    runs-on: ubuntu-latest
+    steps:
+      - name: send custom message
+        uses: appleboy/telegram-action@master
+        with:
+          to: ${{ secrets.TELEGRAM_TO }}
+          token: ${{ secrets.TELEGRAM_TOKEN }}
+          disable_web_page_preview: true
+          format: html
+          message: |
+            <a href="https://github.com/${{ github.repository }}/pulls">pull request</a>
+            merged by <b>${{ github.actor }}</b>
