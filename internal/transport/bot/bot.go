@@ -7,65 +7,24 @@ import (
 	"strconv"
 )
 
-var (
-	menu              = &tele.ReplyMarkup{ResizeKeyboard: true}
-	btnCategories     = menu.Text("Меню")
-	btnCart           = menu.Text("Корзина")
-	btnOrder          = menu.Text("Оформить заказ")
-	btnInfo           = menu.Text("О нас")
-	btnOrderList      = menu.Text("Мои заказы")
-	btnContactManager = menu.Text("Связаться с менеджером")
-
-	menuMessage         = "Главное меню"
-	infoMessage         = "Здесь пока что пусто)"
-	managerMessage      = "Контакт менеджера: @danqzq"
-	emptyMessage        = "Пусто"
-	orderMessage        = "Заказ оформлен"
-	selectAmountMessage = "Выберите количество"
-	addedToCartMessage  = "Товар добавлен в корзину"
-	cartEmptyMessage    = "Корзина пуста"
-
-	categoryMenuRows    []tele.Row
-	categoryMenu        = &tele.ReplyMarkup{ResizeKeyboard: true}
-	categoryMenuMessage = "Выберите категорию:"
-	btnCategoryBack     = categoryMenu.Text("Назад в главное меню")
-
-	cartMenu     = &tele.ReplyMarkup{ResizeKeyboard: true}
-	btnClearCart = cartMenu.Text("Очистить корзину")
-
-	productMenu         = &tele.ReplyMarkup{ResizeKeyboard: true}
-	btnInlineAddMessage = "Добавить"
-	btnInlineAdded      = productMenu.Data("Добавлено в корзину", "added")
-	btnInlineOrder      = productMenu.Data("Оформить заказ", "order")
-	btnInlineBack       = productMenu.Data("Вернуться в главное меню", "back")
-
-	addressMenu        = &tele.ReplyMarkup{ResizeKeyboard: true}
-	addressMenuMessage = "Введите адрес доставки:"
-	btnCancelOrder     = addressMenu.Text("Отмена")
-
-	paymentMethodMenu        = &tele.ReplyMarkup{ResizeKeyboard: true}
-	paymentMethodMenuMessage = "Выберите способ оплаты:"
-	btnCreditCard            = paymentMethodMenu.Text("Кредитная карта")
-	btnCash                  = paymentMethodMenu.Text("Наличными")
-
-	emptyMenu = &tele.ReplyMarkup{ResizeKeyboard: true}
-	btnBack   = emptyMenu.Text("Назад в главное меню")
-
-	unknownCommandMessage = "Неизвестная команда"
-)
-
+// TempUserInfo - temporary user info, for storing a user's cart and other data
 type TempUserInfo struct {
-	Cart             []*ProductChoice
+	Cart             []*model.OrderItem
 	IsSettingAddress bool
 }
 
-type ProductChoice struct {
-	Product model.Product
-	Count   int
+// temp user storage
+var userStorage = make(map[int64]*TempUserInfo)
+
+func getCurrentUser(c tele.Context) *TempUserInfo {
+	if userStorage[c.Sender().ID] == nil {
+		userStorage[c.Sender().ID] = &TempUserInfo{}
+	}
+	return userStorage[c.Sender().ID]
 }
 
 func Start(config Config) error {
-	b, err := tele.NewBot(tele.Settings{
+	bot, err := tele.NewBot(tele.Settings{
 		Token: config.Token,
 		Poller: &tele.LongPoller{
 			Timeout: config.LongPollerTimeout,
@@ -75,23 +34,13 @@ func Start(config Config) error {
 		return err
 	}
 
-	LoadCategories(b)
+	LoadCategories(bot)
 	InitializeMenuReplies()
-	RegisterEndpointCallbacks(b)
-	RegisterButtonCallbacks(b)
+	RegisterEndpointCallbacks(bot)
+	RegisterButtonCallbacks(bot)
 
-	b.Start()
+	bot.Start()
 	return nil
-}
-
-// temp storage
-var userStorage = make(map[int64]*TempUserInfo)
-
-func getCurrentUser(c tele.Context) *TempUserInfo {
-	if userStorage[c.Sender().ID] == nil {
-		userStorage[c.Sender().ID] = &TempUserInfo{}
-	}
-	return userStorage[c.Sender().ID]
 }
 
 func LoadCategories(bot *tele.Bot) {
@@ -102,9 +51,8 @@ func LoadCategories(bot *tele.Bot) {
 		btn := categoryMenu.Text(category.Title)
 		categoryMenuRows = append(categoryMenuRows, categoryMenu.Row(btn))
 
-		var cat = category
 		bot.Handle(&btn, func(c tele.Context) error {
-			messages, menus := loadProducts(bot, cat)
+			messages, menus := loadProducts(bot, category)
 			for i := range messages {
 				c.Send(messages[i], menus[i])
 			}
@@ -165,19 +113,19 @@ func handleAddToCartButton(bot *tele.Bot, btn tele.Btn, products []model.Product
 		var buttonRows []tele.Row
 		var currentRow []tele.Btn
 
-		index, _ := strconv.Atoi(c.Args()[0])
-		p := products[index]
+		productIndex, _ := strconv.Atoi(c.Args()[0])
+		product := products[productIndex]
 
 		for i := 1; i <= 6; i++ {
-			btn := numMenu.Data(fmt.Sprintf("%d", i), fmt.Sprintf("add_product_%d_%d", p.ID, i))
+			btn := numMenu.Data(fmt.Sprintf("%d", i), fmt.Sprintf("add_product_%d_%d", product.ID, i))
 			currentRow = append(currentRow, btn)
 			if len(currentRow) == 3 {
 				buttonRows = append(buttonRows, numMenu.Row(currentRow...))
 				currentRow = []tele.Btn{}
 			}
-			handleAddProductButton(bot, btn, &ProductChoice{
-				Product: p,
-				Count:   i,
+			handleAddProductButton(bot, btn, &model.OrderItem{
+				Product: &product,
+				Amount:  i,
 			})
 		}
 		numMenu.Inline(buttonRows...)
@@ -187,9 +135,9 @@ func handleAddToCartButton(bot *tele.Bot, btn tele.Btn, products []model.Product
 	})
 }
 
-func handleAddProductButton(bot *tele.Bot, btn tele.Btn, choice *ProductChoice) {
+func handleAddProductButton(bot *tele.Bot, btn tele.Btn, orderItem *model.OrderItem) {
 	bot.Handle(&btn, func(c tele.Context) error {
-		getCurrentUser(c).Cart = append(getCurrentUser(c).Cart, choice)
+		getCurrentUser(c).Cart = append(getCurrentUser(c).Cart, orderItem)
 		buttonRows := []tele.Row{
 			productMenu.Row(btnInlineAdded),
 			productMenu.Row(btnInlineOrder),
@@ -237,7 +185,7 @@ func InitializeMenuReplies() {
 func RegisterEndpointCallbacks(bot *tele.Bot) {
 	bot.Handle("/start", func(c tele.Context) error {
 		userStorage[c.Sender().ID] = &TempUserInfo{
-			Cart:             []*ProductChoice{},
+			Cart:             []*model.OrderItem{},
 			IsSettingAddress: false,
 		}
 		return c.Send(menuMessage, menu)
@@ -254,10 +202,10 @@ func RegisterButtonCallbacks(bot *tele.Bot) {
 			return c.Send(cartEmptyMessage, emptyMenu)
 		}
 		text := ""
-		for _, productChoice := range getCurrentUser(c).Cart {
-			product := productChoice.Product
+		for _, orderItem := range getCurrentUser(c).Cart {
+			product := orderItem.Product
 			text += fmt.Sprintf("%s\n%s\nЦена: %dx%d=%d тенге\n\n", product.Title, product.Description,
-				product.Price, productChoice.Count, product.Price*productChoice.Count)
+				product.Price, orderItem.Amount, product.Price*orderItem.Amount)
 		}
 		text += "Сумма: " + fmt.Sprintf("%d", priceSum(getCurrentUser(c).Cart)) + " тенге"
 		return c.Send(text, cartMenu)
@@ -308,7 +256,7 @@ func RegisterButtonCallbacks(bot *tele.Bot) {
 	sendOrder := func(c tele.Context) error {
 		// TODO: add order to db
 
-		getCurrentUser(c).Cart = []*ProductChoice{}
+		getCurrentUser(c).Cart = []*model.OrderItem{}
 
 		c.Send(orderMessage)
 		return c.Send(menuMessage, menu)
@@ -350,9 +298,9 @@ func RegisterButtonCallbacks(bot *tele.Bot) {
 	})
 }
 
-func priceSum(products []*ProductChoice) (sum int) {
+func priceSum(products []*model.OrderItem) (sum int) {
 	for _, product := range products {
-		sum += product.Product.Price * product.Count
+		sum += product.Product.Price * product.Amount
 	}
 	return sum
 }

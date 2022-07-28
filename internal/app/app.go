@@ -27,7 +27,8 @@ func Run(conf config.Config) error {
 
 	storage := container.NewStorageContainer(db)
 	service := container.NewServiceContainer(storage)
-	controller := container.NewRestContainer(service)
+	restControllers := container.NewRestContainer(service)
+	botHandlers := container.NewHandlerContainer(service)
 
 	transportConfig := transport.Config{
 		Rest: rest.Config{
@@ -43,5 +44,5 @@ func Run(conf config.Config) error {
 		},
 	}
 
-	return transport.Start(transportConfig, controller)
+	return transport.Start(transportConfig, restControllers, botHandlers)
 }
