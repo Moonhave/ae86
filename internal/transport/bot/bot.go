@@ -304,4 +304,4 @@ func priceSum(products []*model.OrderItem) (sum int) {
 		sum += product.Product.Price * product.Amount
 	}
 	return sum
-}
+} //
