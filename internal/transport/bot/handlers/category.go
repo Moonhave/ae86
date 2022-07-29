@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"ae86/internal/transport/adapter"
+	"ae86/internal/transport/bot/view"
 	"gopkg.in/telebot.v3"
 )
 
@@ -13,7 +14,6 @@ func NewCategoryHandler(service adapter.ServiceContainer) *CategoryHandler {
 	return &CategoryHandler{service: service}
 }
 
-func (h *CategoryHandler) LoadCategories(c telebot.Context) error {
-	// load categories from service and convert to buttons
-	return nil
+func (h *CategoryHandler) SendCategories(c telebot.Context) error {
+	return c.Send(view.CategoryMenuMessage, view.CategoryMenu)
 }

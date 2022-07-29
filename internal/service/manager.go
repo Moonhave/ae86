@@ -11,6 +11,11 @@ type ManagerService struct {
 	storage adapter.StorageContainer
 }
 
+func (s *ManagerService) GetAllManagers() (result []model.Manager) {
+	//TODO implement me
+	return nil
+}
+
 func NewManagerService(storage adapter.StorageContainer) *ManagerService {
 	return &ManagerService{storage: storage}
 }
