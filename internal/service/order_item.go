@@ -1,6 +1,8 @@
 package service
 
-import "ae86/internal/service/adapter"
+import (
+	"ae86/internal/service/adapter"
+)
 
 type OrderItemService struct {
 	storage adapter.StorageContainer
