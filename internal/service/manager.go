@@ -5,15 +5,11 @@ import (
 	"ae86/internal/service/adapter"
 	"ae86/pkg/logger"
 	"github.com/sirupsen/logrus"
+	"log"
 )
 
 type ManagerService struct {
 	storage adapter.StorageContainer
-}
-
-func (s *ManagerService) GetAllManagers() (result []model.Manager) {
-	//TODO implement me
-	return nil
 }
 
 func NewManagerService(storage adapter.StorageContainer) *ManagerService {
@@ -31,4 +27,12 @@ func (s *ManagerService) GetByID(id uint) (result model.Manager, err error) {
 	}()
 
 	return s.storage.Manager().GetByID(id)
+}
+
+func (s *ManagerService) GetManager() (result model.Manager) {
+	result, err := s.storage.Manager().GetByID(0)
+	if err != nil {
+		log.Println(err)
+	}
+	return result
 }
