@@ -4,7 +4,6 @@ import (
 	"ae86/internal/model"
 	"ae86/internal/service/adapter"
 	transportAdapter "ae86/internal/transport/adapter"
-	"log"
 )
 
 type OrderService struct {
@@ -23,7 +22,7 @@ func (o *OrderService) GetOrderList(filter transportAdapter.OrderFilter) (result
 
 	result, err = o.storage.Order().GetAllBy(orderFilter)
 	if result != nil {
-		log.Println(err)
+		return nil, err
 	}
 	return result, err
 }
@@ -31,7 +30,7 @@ func (o *OrderService) GetOrderList(filter transportAdapter.OrderFilter) (result
 func (o *OrderService) CreateOrder(order model.Order) (id uint, err error) {
 	result, err := o.storage.Order().Create(model.Order{})
 	if err != nil {
-		log.Println(err)
+		return 0, err
 	}
 	return result, err
 }

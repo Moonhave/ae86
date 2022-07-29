@@ -3,7 +3,6 @@ package service
 import (
 	"ae86/internal/model"
 	"ae86/internal/service/adapter"
-	"log"
 )
 
 type CustomerService struct {
@@ -15,9 +14,9 @@ func NewCustomerService(storage adapter.StorageContainer) *CustomerService {
 }
 
 func (c *CustomerService) CreateCustomer(customer model.Customer) (id uint, err error) {
-	result, err := c.storage.Customer().Create(model.Customer{})
+	result, err := c.storage.Customer().Create(customer)
 	if err != nil {
-		log.Println(err)
+		return 0, err
 	}
 	return result, err
 }

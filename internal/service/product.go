@@ -3,7 +3,6 @@ package service
 import (
 	"ae86/internal/model"
 	"ae86/internal/service/adapter"
-	"log"
 )
 
 type ProductService struct {
@@ -18,10 +17,10 @@ func NewProductService(storage adapter.StorageContainer) *ProductService {
 	return &ProductService{storage: storage}
 }
 
-func (p *ProductService) GetProductsByCategory(categoryId uint) (result []model.Product) {
-	result, err := p.storage.Product().GetAllBy(adapter.ProductFilter{CategoryID: &categoryId})
+func (p *ProductService) GetProductsByCategory(categoryId uint) (result []model.Product, err error) {
+	result, err = p.storage.Product().GetAllBy(adapter.ProductFilter{CategoryID: &categoryId})
 	if err != nil {
-		log.Println(err)
+		return nil, err
 	}
-	return result
+	return result, err
 }
