@@ -31,9 +31,9 @@ type CustomerService interface {
 }
 
 type OrderService interface {
+	CreateOrder(order model.Order) (id uint, err error)
 	GetOrderList(filter OrderFilter) (result []model.Order, err error)
 }
 
 type OrderItemService interface {
-	CreateOrder(order model.Order) (id uint, err error)
 }
