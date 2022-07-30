@@ -8,6 +8,7 @@ import (
 
 // CustomerInfo TempCustomerInfo - temporary customer info, for storing a customer's cart and other temporary data
 type CustomerInfo struct {
+	CustomerID              uint
 	Cart                    []*model.OrderItem
 	IsRequiredToSendAddress bool
 	PreferredAddress        string
@@ -17,10 +18,10 @@ type CustomerInfo struct {
 // temp user storage
 var temporaryCustomerStorage = make(map[uint]*CustomerInfo)
 
-func CreateCustomer(c tele.Context) {
+func CreateCustomer(c tele.Context, customerId uint) {
 	temporaryCustomerStorage[uint(c.Sender().ID)] = &CustomerInfo{
-		Cart:                    []*model.OrderItem{},
-		IsRequiredToSendAddress: false,
+		CustomerID: customerId,
+		Cart:       []*model.OrderItem{},
 	}
 }
 

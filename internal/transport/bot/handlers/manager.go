@@ -3,6 +3,7 @@ package handlers
 import (
 	"ae86/internal/transport/adapter"
 	"ae86/internal/transport/bot/view"
+	"fmt"
 	tele "gopkg.in/telebot.v3"
 )
 
@@ -15,5 +16,11 @@ type ManagerHandler struct {
 }
 
 func (h *ManagerHandler) SendManagerDetails(c tele.Context) error {
-	return c.Send(view.ManagerMessage, view.EmptyMenu)
+	manager, err := h.service.Manager().GetManager()
+	if err != nil {
+		c.Send(view.DefaultManagerMessage, view.EmptyMenu)
+		return err
+	}
+	return c.Send(fmt.Sprintf("Контакт менеджера: %s %s\n%s", manager.FirstName, manager.LastName,
+		manager.Phone), view.EmptyMenu)
 }

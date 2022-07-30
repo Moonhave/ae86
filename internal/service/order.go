@@ -28,7 +28,7 @@ func (o *OrderService) GetOrderList(filter transportAdapter.OrderFilter) (result
 }
 
 func (o *OrderService) CreateOrder(order model.Order) (id uint, err error) {
-	result, err := o.storage.Order().Create(model.Order{})
+	result, err := o.storage.Order().Create(order)
 	if err != nil {
 		return 0, err
 	}

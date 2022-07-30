@@ -32,9 +32,10 @@ func Start(config Config, handlers *container.HandlerContainer) error {
 }
 
 func LoadCategories(bot *tele.Bot, handlers *container.HandlerContainer) {
-	// TODO: populate with actual categories from db
-	var categories = []model.Category{
-		{Title: "Пицца 🍕"}, {Title: "Суши 🍣"}, {Title: "Десерты 🍨"}, {Title: "Напитки 🍹"},
+	//var categories = []model.Category{{Title: "Пицца 🍕"}, {Title: "Суши 🍣"}, {Title: "Десерты 🍨"}, {Title: "Напитки 🍹"},}
+	categories, err := handlers.Category().GetAllCategories()
+	if err != nil {
+		return
 	}
 
 	for _, value := range categories {
@@ -42,9 +43,10 @@ func LoadCategories(bot *tele.Bot, handlers *container.HandlerContainer) {
 		btn := view.CategoryMenu.Text(category.Title)
 		view.CategoryMenuRows = append(view.CategoryMenuRows, view.CategoryMenu.Row(btn))
 		bot.Handle(&btn, func(c tele.Context) error {
-			messages, menus := LoadProducts(bot, category, handlers)
+			messages := LoadProducts(bot, category.ID, handlers)
 			for i := range messages {
-				c.Send(messages[i], menus[i])
+				c.Send(messages[i].Photo)
+				c.Send(messages[i].Text, messages[i].ReplyMarkup)
 			}
 			return c.Respond()
 		})
@@ -53,33 +55,23 @@ func LoadCategories(bot *tele.Bot, handlers *container.HandlerContainer) {
 	view.CategoryMenuRows = append(view.CategoryMenuRows, view.CategoryMenu.Row(view.BtnCategoryBack))
 }
 
-func LoadProducts(bot *tele.Bot, category model.Category, handlers *container.HandlerContainer) (messages []string, markups []*tele.ReplyMarkup) {
-	// TODO: get products from db depending on category
-
-	var testProducts = []model.Product{
-		{
-			Title:       category.Title + " 1",
-			Description: "Описание",
-			Price:       1190,
-		},
-		{
-			Title:       category.Title + " 2",
-			Description: "Описание",
-			Price:       1490,
-		},
-		{
-			Title:       category.Title + " 3",
-			Description: "Описание",
-			Price:       1790,
-		},
+func LoadProducts(bot *tele.Bot, categoryId uint, handlers *container.HandlerContainer) (messages []tele.Message) {
+	/*var products = []model.Product{
+		{Title: category.Title + " 1", Description: "Описание", Price: 1190},
+		{Title: category.Title + " 2", Description: "Описание", Price: 1490},
+		{Title: category.Title + " 3", Description: "Описание", Price: 1790},
+	}*/
+	products, err := handlers.Product().GetAllProductsByCategoryID(categoryId)
+	if err != nil {
+		return
 	}
 
-	for i, product := range testProducts {
+	for i, product := range products {
 		productInfoMenu := &tele.ReplyMarkup{ResizeKeyboard: true}
 		btnAddToCart := productInfoMenu.Data(view.BtnInlineAddMessage, fmt.Sprintf("add_product_%d", i), fmt.Sprintf("%d", i))
 
 		buttonRows := []tele.Row{productInfoMenu.Row(btnAddToCart)}
-		isLastProduct := i == len(testProducts)-1
+		isLastProduct := i == len(products)-1
 		if isLastProduct {
 			buttonRows = append(buttonRows, productInfoMenu.Row(view.BtnInlineBack))
 		}
@@ -87,12 +79,15 @@ func LoadProducts(bot *tele.Bot, category model.Category, handlers *container.Ha
 
 		p := product
 		text := fmt.Sprintf("%s\n%s\nЦена: %d тенге", p.Title, p.Description, p.Price)
-		HandleAddToCartButton(bot, btnAddToCart, testProducts, handlers)
+		HandleAddToCartButton(bot, btnAddToCart, products, handlers)
 
-		messages = append(messages, text)
-		markups = append(markups, productInfoMenu)
+		messages = append(messages, tele.Message{
+			Text:        text,
+			ReplyMarkup: productInfoMenu,
+			Photo:       &tele.Photo{File: tele.FromURL(p.Image)},
+		})
 	}
-	return messages, markups
+	return messages
 }
 
 func HandleAddToCartButton(bot *tele.Bot, btn tele.Btn, products []model.Product, handlers *container.HandlerContainer) {
