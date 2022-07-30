@@ -13,17 +13,17 @@ type ServiceContainer interface {
 }
 
 type ManagerService interface {
-	GetManager() (result model.Manager)
+	GetManager() (result model.Manager, err error)
 }
 
 type CategoryService interface {
-	GetAllCategories() (result []model.Category)
+	GetAllCategories() (result []model.Category, err error)
 }
 
 type StoreService interface{}
 
 type ProductService interface {
-	GetProductsByCategory(categoryId int) (result []model.Product)
+	GetProductsByCategory(categoryId uint) (result []model.Product, err error)
 }
 
 type CustomerService interface {
