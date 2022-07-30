@@ -37,10 +37,10 @@ func LoadCategories(bot *tele.Bot, handlers *container.HandlerContainer) {
 		{Title: "Пицца 🍕"}, {Title: "Суши 🍣"}, {Title: "Десерты 🍨"}, {Title: "Напитки 🍹"},
 	}
 
-	for _, category := range categories {
+	for _, value := range categories {
+		category := value
 		btn := view.CategoryMenu.Text(category.Title)
 		view.CategoryMenuRows = append(view.CategoryMenuRows, view.CategoryMenu.Row(btn))
-
 		bot.Handle(&btn, func(c tele.Context) error {
 			messages, menus := LoadProducts(bot, category, handlers)
 			for i := range messages {
@@ -78,9 +78,7 @@ func LoadProducts(bot *tele.Bot, category model.Category, handlers *container.Ha
 		productInfoMenu := &tele.ReplyMarkup{ResizeKeyboard: true}
 		btnAddToCart := productInfoMenu.Data(view.BtnInlineAddMessage, fmt.Sprintf("add_product_%d", i), fmt.Sprintf("%d", i))
 
-		buttonRows := []tele.Row{
-			productInfoMenu.Row(btnAddToCart),
-		}
+		buttonRows := []tele.Row{productInfoMenu.Row(btnAddToCart)}
 		isLastProduct := i == len(testProducts)-1
 		if isLastProduct {
 			buttonRows = append(buttonRows, productInfoMenu.Row(view.BtnInlineBack))
