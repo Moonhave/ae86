@@ -15,11 +15,7 @@ type GeneralHandler struct {
 }
 
 func (h *GeneralHandler) GoBackToMenu(c tele.Context) error {
-	return c.Send(view.MenuMessage, view.Menu)
-}
-
-func (h *GeneralHandler) GoBackToMenuInline(c tele.Context) error {
-	err := h.GoBackToMenu(c)
+	err := c.Send(view.MenuMessage, view.Menu)
 	if err != nil {
 		return err
 	}

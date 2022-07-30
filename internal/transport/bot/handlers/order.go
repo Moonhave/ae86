@@ -33,6 +33,11 @@ func (h *OrderHandler) SendCart(c tele.Context) error {
 	return c.Send(text, view.CartMenu)
 }
 
+func (h *OrderHandler) ClearCart(c tele.Context) error {
+	temp.GetCurrentCustomer(c).Cart = []*model.OrderItem{}
+	return c.Send(view.CartEmptyMessage, view.EmptyMenu)
+}
+
 func (h *OrderHandler) PromptAddressInput(c tele.Context) error {
 	if len(temp.GetCurrentCustomer(c).Cart) == 0 {
 		return c.Send(view.CartEmptyMessage, view.EmptyMenu)
@@ -40,11 +45,7 @@ func (h *OrderHandler) PromptAddressInput(c tele.Context) error {
 
 	temp.GetCurrentCustomer(c).IsRequiredToSendAddress = true
 
-	return c.Send(view.AddressMenuMessage, view.AddressMenu)
-}
-
-func (h *OrderHandler) PromptAddressInputInline(c tele.Context) error {
-	err := h.PromptAddressInput(c)
+	err := c.Send(view.AddressMenuMessage, view.AddressMenu)
 	if err != nil {
 		return err
 	}

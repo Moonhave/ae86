@@ -10,8 +10,9 @@ func RegisterButtonCallbacks(bot *tele.Bot, handlers *container.HandlerContainer
 	bot.Handle(&view.BtnCategories, handlers.Category().SendCategories)
 
 	bot.Handle(&view.BtnCart, handlers.Order().SendCart)
+	bot.Handle(&view.BtnClearCart, handlers.Order().ClearCart)
 	bot.Handle(&view.BtnOrder, handlers.Order().PromptAddressInput)
-	bot.Handle(&view.BtnInlineOrder, handlers.Order().PromptAddressInputInline)
+	bot.Handle(&view.BtnInlineOrder, handlers.Order().PromptAddressInput)
 	bot.Handle(&view.BtnCancelOrder, handlers.Order().CancelOrder)
 
 	bot.Handle(&view.BtnCash, handlers.Order().SetCashAsPaymentMethod)
@@ -24,5 +25,5 @@ func RegisterButtonCallbacks(bot *tele.Bot, handlers *container.HandlerContainer
 	bot.Handle(&view.BtnContactManager, handlers.Manager().SendManagerDetails)
 
 	bot.Handle(&view.BtnBack, handlers.General().GoBackToMenu)
-	bot.Handle(&view.BtnInlineBack, handlers.General().GoBackToMenuInline)
+	bot.Handle(&view.BtnInlineBack, handlers.General().GoBackToMenu)
 }
