@@ -26,11 +26,16 @@ func (h *OrderHandler) SendCart(c tele.Context) error {
 	text := ""
 	for _, orderItem := range cart {
 		product := orderItem.Product
-		text += fmt.Sprintf("%s\n%s\nЦена: %dx%d=%d тенге\n\n", product.Title, product.Description,
+		text += fmt.Sprintf("%s\nЦена: %dx%d=%d тенге\n\n", product.Title,
 			product.Price, orderItem.Amount, product.Price*orderItem.Amount)
 	}
 	text += "Сумма: " + fmt.Sprintf("%d", priceSum(cart)) + " тенге"
 	return c.Send(text, view.CartMenu)
+}
+
+func (h *OrderHandler) ClearCart(c tele.Context) error {
+	temp.GetCurrentCustomer(c).Cart = []*model.OrderItem{}
+	return c.Send(view.CartEmptyMessage, view.EmptyMenu)
 }
 
 func (h *OrderHandler) PromptAddressInput(c tele.Context) error {
@@ -40,11 +45,7 @@ func (h *OrderHandler) PromptAddressInput(c tele.Context) error {
 
 	temp.GetCurrentCustomer(c).IsRequiredToSendAddress = true
 
-	return c.Send(view.AddressMenuMessage, view.AddressMenu)
-}
-
-func (h *OrderHandler) PromptAddressInputInline(c tele.Context) error {
-	err := h.PromptAddressInput(c)
+	err := c.Send(view.AddressMenuMessage, view.AddressMenu)
 	if err != nil {
 		return err
 	}
@@ -93,19 +94,19 @@ func (h *OrderHandler) SendOrderList(c tele.Context) error {
 
 func (h *OrderHandler) sendOrder(c tele.Context) error {
 	order := model.Order{
-		CustomerID: uint(c.Sender().ID),
+		CustomerID: temp.GetCurrentCustomer(c).CustomerID,
 		Address:    temp.GetCurrentCustomer(c).PreferredAddress,
 		State:      enums.OrderStatePending,
 	}
 
-	_, err := h.service.Order().CreateOrder(order)
+	orderId, err := h.service.Order().CreateOrder(order)
 	if err != nil {
 		return err
 	}
 
 	temp.GetCurrentCustomer(c).Cart = []*model.OrderItem{}
 
-	c.Send(view.OrderMessage)
+	c.Send(fmt.Sprintf("%s\nID Заказа: %d", view.OrderMessage, orderId), view.EmptyMenu)
 	return c.Send(view.MenuMessage, view.Menu)
 }
 

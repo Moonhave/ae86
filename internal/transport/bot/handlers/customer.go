@@ -26,7 +26,16 @@ type CustomerInfo struct {
 }
 
 func (h *CustomerHandler) CreateCustomer(c tele.Context) error {
-	temp.CreateCustomer(c)
+	customerId, err := h.service.Customer().CreateCustomer(model.Customer{
+		ExternalID: uint(c.Sender().ID),
+		Username:   c.Sender().Username,
+		FirstName:  c.Sender().FirstName,
+		LastName:   c.Sender().LastName,
+	})
+	if err != nil {
+		return err
+	}
+	temp.CreateCustomer(c, customerId)
 	return c.Send(view.MenuMessage, view.Menu)
 }
 

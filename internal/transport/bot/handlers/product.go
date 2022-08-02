@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"ae86/internal/model"
 	"ae86/internal/transport/adapter"
 	"ae86/internal/transport/bot/view"
 	tele "gopkg.in/telebot.v3"
@@ -12,6 +13,14 @@ func NewProductHandler(service adapter.ServiceContainer) *ProductHandler {
 
 type ProductHandler struct {
 	service adapter.ServiceContainer
+}
+
+func (h *ProductHandler) GetAllProductsByCategoryID(categoryId uint) ([]model.Product, error) {
+	products, err := h.service.Product().GetProductsByCategory(categoryId)
+	if err != nil {
+		return []model.Product{}, err
+	}
+	return products, err
 }
 
 func (h *ProductHandler) UpdateProductInlineMenu(c tele.Context) error {

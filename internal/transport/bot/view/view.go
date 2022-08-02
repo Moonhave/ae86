@@ -11,14 +11,14 @@ var (
 	BtnOrderList      = Menu.Text("📝 Мои заказы")
 	BtnContactManager = Menu.Text("🧑‍💻 Связаться с менеджером")
 
-	MenuMessage         = "Главное меню"
-	InfoMessage         = "Здесь пока что пусто)"
-	ManagerMessage      = "Контакт менеджера: @danqzq"
-	EmptyMessage        = "Пусто"
-	OrderMessage        = "Заказ оформлен"
-	SelectAmountMessage = "Выберите количество"
-	AddedToCartMessage  = "Товар добавлен в корзину"
-	CartEmptyMessage    = "Корзина пуста"
+	MenuMessage           = "Главное меню"
+	InfoMessage           = "Здесь пока что пусто)"
+	DefaultManagerMessage = "Контакт менеджера: @danqzq"
+	EmptyMessage          = "Пусто"
+	OrderMessage          = "Заказ оформлен"
+	SelectAmountMessage   = "Выберите количество"
+	AddedToCartMessage    = "Товар добавлен в корзину"
+	CartEmptyMessage      = "Корзина пуста"
 
 	CategoryMenuRows    []tele.Row
 	CategoryMenu        = &tele.ReplyMarkup{ResizeKeyboard: true}
