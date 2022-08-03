@@ -17,7 +17,6 @@ func (o *OrderService) GetOrderList(filter transportAdapter.OrderFilter) (result
 		PaymentMethod: filter.PaymentMethod,
 		State:         filter.State,
 		StoreID:       filter.StoreID,
-		IsDeleted:     filter.IsDeleted,
 	}
 
 	result, err = o.storage.Order().GetAllBy(orderFilter)

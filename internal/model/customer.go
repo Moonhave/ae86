@@ -3,7 +3,7 @@ package model
 import "time"
 
 type Customer struct {
-	ID         uint      `gorm:"primarykey"`
+	ID         uint      `gorm:"primaryKey"`
 	ExternalID uint      `gorm:"column:external_id;not null"`
 	Username   string    `gorm:"column:username"`
 	Phone      string    `gorm:"column:phone"`

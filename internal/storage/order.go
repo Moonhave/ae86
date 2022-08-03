@@ -29,7 +29,7 @@ func (s *OrderStorage) GetByID(id uint) (result model.Order, err error) {
 
 	err = s.db.
 		Model(&model.Order{}).
-		Where("id = ? AND is_deleted = ?", id, false).
+		Where("id = ?", id).
 		First(&result).
 		Error
 	return
@@ -62,9 +62,6 @@ func (s *OrderStorage) GetAllBy(filter adapter.OrderFilter) (result []model.Orde
 			}
 			if filter.StoreID != nil && *filter.StoreID != 0 {
 				db = db.Where("store_id = ?", filter.StoreID)
-			}
-			if filter.IsDeleted != nil {
-				db = db.Where("is_deleted = ?", filter.IsDeleted)
 			}
 			return db
 		}).
@@ -104,7 +101,7 @@ func (s *OrderStorage) Update(id uint, order model.Order) (err error) {
 
 	err = s.db.
 		Model(&model.Order{}).
-		Where("id = ? AND is_deleted = ?", id, false).
+		Where("id = ?", id).
 		Updates(&order).
 		Error
 	return
@@ -123,7 +120,7 @@ func (s *OrderStorage) Delete(id uint) (err error) {
 	err = s.db.
 		Model(&model.Order{}).
 		Where("id = ?", id).
-		UpdateColumn("is_deleted", true).
+		Delete(&model.Order{}).
 		Error
 	return
 }

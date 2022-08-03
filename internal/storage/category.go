@@ -27,7 +27,7 @@ func (s *CategoryStorage) GetByID(id uint) (result model.Category, err error) {
 
 	err = s.db.
 		Model(&model.Category{}).
-		Where("id = ? AND is_deleted = ?", id, false).
+		Where("id = ?", id).
 		First(&result).
 		Error
 	return
@@ -45,7 +45,7 @@ func (s *CategoryStorage) GetAllByStoreID(storeID uint) (result []model.Category
 
 	err = s.db.
 		Model(&model.Category{}).
-		Where("store_id = ? AND is_deleted = ?", storeID, false).
+		Where("store_id = ?", storeID).
 		Find(&result).
 		Error
 	return
@@ -82,7 +82,7 @@ func (s *CategoryStorage) Update(id uint, category model.Category) (err error) {
 
 	err = s.db.
 		Model(&model.Category{}).
-		Where("id = ? AND is_deleted = ?", id, false).
+		Where("id = ?", id).
 		Updates(&category).
 		Error
 	return
@@ -101,7 +101,7 @@ func (s *CategoryStorage) Delete(id uint) (err error) {
 	err = s.db.
 		Model(&model.Category{}).
 		Where("id = ?", id).
-		UpdateColumn("is_deleted", true).
+		Delete(&model.Category{}).
 		Error
 	return
 }
