@@ -17,7 +17,7 @@ func NewOrderStorage(db *gorm.DB) *OrderStorage {
 	return &OrderStorage{db: db}
 }
 
-func (s *OrderStorage) GetByID(id uint) (result model.Order, err error) {
+func (s *OrderStorage) ByID(id uint) (result model.Order, err error) {
 	defer func() {
 		if err != nil {
 			logger.Log.WithFields(logrus.Fields{
@@ -35,7 +35,7 @@ func (s *OrderStorage) GetByID(id uint) (result model.Order, err error) {
 	return
 }
 
-func (s *OrderStorage) GetAllBy(filter adapter.OrderFilter) (result []model.Order, err error) {
+func (s *OrderStorage) ListBy(filter adapter.OrderFilter) (result []model.Order, err error) {
 	defer func() {
 		if err != nil {
 			logger.Log.WithFields(logrus.Fields{

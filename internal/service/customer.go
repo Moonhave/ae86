@@ -13,6 +13,6 @@ func NewCustomerService(storage adapter.StorageContainer) *CustomerService {
 	return &CustomerService{storage: storage}
 }
 
-func (c *CustomerService) CreateCustomer(customer model.Customer) (id uint, err error) {
+func (c *CustomerService) Create(customer model.Customer) (id uint, err error) {
 	return c.storage.Customer().Create(customer)
 }

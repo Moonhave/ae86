@@ -16,7 +16,7 @@ type ProductHandler struct {
 }
 
 func (h *ProductHandler) GetAllProductsByCategoryID(categoryId uint) ([]model.Product, error) {
-	products, err := h.service.Product().GetProductsByCategory(categoryId)
+	products, err := h.service.Product().ListByCategoryID(categoryId)
 	if err != nil {
 		return []model.Product{}, err
 	}

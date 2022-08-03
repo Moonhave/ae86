@@ -11,20 +11,20 @@ type ServiceContainer interface {
 }
 
 type CategoryService interface {
-	GetAllCategories() (result []model.Category, err error)
+	ListAll() (result []model.Category, err error)
 }
 
 type ProductService interface {
-	GetProductsByCategory(categoryId uint) (result []model.Product, err error)
+	ListByCategoryID(categoryID uint) (result []model.Product, err error)
 }
 
 type CustomerService interface {
-	CreateCustomer(customer model.Customer) (id uint, err error)
+	Create(customer model.Customer) (id uint, err error)
 }
 
 type OrderService interface {
-	CreateOrder(order model.Order) (id uint, err error)
-	GetOrderList(filter OrderFilter) (result []model.Order, err error)
+	Create(order model.Order) (id uint, err error)
+	ListBy(filter OrderFilter) (result []model.Order, err error)
 }
 
 type OrderItemService interface{}

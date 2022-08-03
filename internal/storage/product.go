@@ -16,7 +16,7 @@ func NewProductStorage(db *gorm.DB) *ProductStorage {
 	return &ProductStorage{db: db}
 }
 
-func (s *ProductStorage) GetByID(id uint) (result model.Product, err error) {
+func (s *ProductStorage) ByID(id uint) (result model.Product, err error) {
 	defer func() {
 		if err != nil {
 			logger.Log.WithFields(logrus.Fields{
@@ -34,7 +34,7 @@ func (s *ProductStorage) GetByID(id uint) (result model.Product, err error) {
 	return
 }
 
-func (s *ProductStorage) GetAllBy(filter adapter.ProductFilter) (result []model.Product, err error) {
+func (s *ProductStorage) ListBy(filter adapter.ProductFilter) (result []model.Product, err error) {
 	defer func() {
 		if err != nil {
 			logger.Log.WithFields(logrus.Fields{
