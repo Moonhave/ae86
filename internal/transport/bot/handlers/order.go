@@ -72,7 +72,7 @@ func (h *OrderHandler) SetCardAsPaymentMethod(c tele.Context) error {
 
 func (h *OrderHandler) SendOrderList(c tele.Context) error {
 	id := uint(c.Sender().ID)
-	orderList, err := h.service.Order().GetOrderList(adapter.OrderFilter{
+	orderList, err := h.service.Order().ListBy(adapter.OrderFilter{
 		CustomerID: &id,
 	})
 
@@ -99,7 +99,7 @@ func (h *OrderHandler) sendOrder(c tele.Context) error {
 		State:      enums.OrderStatePending,
 	}
 
-	orderId, err := h.service.Order().CreateOrder(order)
+	orderId, err := h.service.Order().Create(order)
 	if err != nil {
 		return err
 	}

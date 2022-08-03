@@ -13,6 +13,6 @@ func NewCategoryService(storage adapter.StorageContainer) *CategoryService {
 	return &CategoryService{storage: storage}
 }
 
-func (c *CategoryService) GetAllCategories() (result []model.Category, err error) {
-	return nil, nil
+func (c *CategoryService) ListAll() (result []model.Category, err error) {
+	return c.storage.Category().ListAll()
 }

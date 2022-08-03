@@ -15,7 +15,23 @@ func NewCategoryStorage(db *gorm.DB) *CategoryStorage {
 	return &CategoryStorage{db: db}
 }
 
-func (s *CategoryStorage) GetByID(id uint) (result model.Category, err error) {
+func (s *CategoryStorage) ListAll() (result []model.Category, err error) {
+	defer func() {
+		if err != nil {
+			logger.Log.WithFields(logrus.Fields{
+				"error": err,
+			}).Error("CategoryStorage.GetAll failed")
+		}
+	}()
+
+	err = s.db.
+		Model(&model.Category{}).
+		Find(&result).
+		Error
+	return
+}
+
+func (s *CategoryStorage) ByID(id uint) (result model.Category, err error) {
 	defer func() {
 		if err != nil {
 			logger.Log.WithFields(logrus.Fields{

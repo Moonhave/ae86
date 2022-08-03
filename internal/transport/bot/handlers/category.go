@@ -16,7 +16,7 @@ func NewCategoryHandler(service adapter.ServiceContainer) *CategoryHandler {
 }
 
 func (h *CategoryHandler) GetAllCategories() (categories []model.Category, err error) {
-	return h.service.Category().GetAllCategories()
+	return h.service.Category().ListAll()
 }
 
 func (h *CategoryHandler) SendCategories(c telebot.Context) error {

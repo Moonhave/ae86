@@ -16,7 +16,7 @@ func NewCustomerStorage(db *gorm.DB) *CustomerStorage {
 	return &CustomerStorage{db: db}
 }
 
-func (s *CustomerStorage) GetByID(id uint) (result model.Customer, err error) {
+func (s *CustomerStorage) ByID(id uint) (result model.Customer, err error) {
 	defer func() {
 		if err != nil {
 			logger.Log.WithFields(logrus.Fields{
@@ -34,7 +34,7 @@ func (s *CustomerStorage) GetByID(id uint) (result model.Customer, err error) {
 	return
 }
 
-func (s *CustomerStorage) GetByExternalID(externalID uint) (result model.Customer, err error) {
+func (s *CustomerStorage) ByExternalID(externalID uint) (result model.Customer, err error) {
 	defer func() {
 		if err != nil {
 			logger.Log.WithFields(logrus.Fields{

@@ -14,7 +14,7 @@ func NewOrderService(storage adapter.StorageContainer) *OrderService {
 	return &OrderService{storage: storage}
 }
 
-func (o *OrderService) GetOrderList(filter transportAdapter.OrderFilter) (result []model.Order, err error) {
+func (o *OrderService) ListBy(filter transportAdapter.OrderFilter) (result []model.Order, err error) {
 	orderFilter := adapter.OrderFilter{
 		Address:       filter.Address,
 		CustomerID:    filter.CustomerID,
@@ -22,9 +22,9 @@ func (o *OrderService) GetOrderList(filter transportAdapter.OrderFilter) (result
 		State:         filter.State,
 	}
 
-	return o.storage.Order().GetAllBy(orderFilter)
+	return o.storage.Order().ListBy(orderFilter)
 }
 
-func (o *OrderService) CreateOrder(order model.Order) (id uint, err error) {
+func (o *OrderService) Create(order model.Order) (id uint, err error) {
 	return o.storage.Order().Create(order)
 }
