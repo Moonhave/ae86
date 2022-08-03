@@ -14,9 +14,5 @@ func NewCategoryService(storage adapter.StorageContainer) *CategoryService {
 }
 
 func (c *CategoryService) GetAllCategories() (result []model.Category, err error) {
-	res, err := c.storage.Category().GetAllByStoreID(0)
-	if err != nil {
-		return nil, err
-	}
-	return res, err
+	return nil, nil
 }

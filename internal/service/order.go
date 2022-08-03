@@ -10,30 +10,21 @@ type OrderService struct {
 	storage adapter.StorageContainer
 }
 
+func NewOrderService(storage adapter.StorageContainer) *OrderService {
+	return &OrderService{storage: storage}
+}
+
 func (o *OrderService) GetOrderList(filter transportAdapter.OrderFilter) (result []model.Order, err error) {
 	orderFilter := adapter.OrderFilter{
 		Address:       filter.Address,
 		CustomerID:    filter.CustomerID,
 		PaymentMethod: filter.PaymentMethod,
 		State:         filter.State,
-		StoreID:       filter.StoreID,
 	}
 
-	result, err = o.storage.Order().GetAllBy(orderFilter)
-	if result != nil {
-		return nil, err
-	}
-	return result, err
+	return o.storage.Order().GetAllBy(orderFilter)
 }
 
 func (o *OrderService) CreateOrder(order model.Order) (id uint, err error) {
-	result, err := o.storage.Order().Create(order)
-	if err != nil {
-		return 0, err
-	}
-	return result, err
-}
-
-func NewOrderService(storage adapter.StorageContainer) *OrderService {
-	return &OrderService{storage: storage}
+	return o.storage.Order().Create(order)
 }

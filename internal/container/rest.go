@@ -6,8 +6,6 @@ import (
 )
 
 type RestContainer struct {
-	manager  *controllers.ManagerController
-	store    *controllers.StoreController
 	category *controllers.CategoryController
 	product  *controllers.ProductController
 	customer *controllers.CustomerController
@@ -16,21 +14,11 @@ type RestContainer struct {
 
 func NewRestContainer(serviceContainer adapter.ServiceContainer) *RestContainer {
 	return &RestContainer{
-		manager:  controllers.NewManagerController(serviceContainer),
-		store:    controllers.NewStoreController(serviceContainer),
 		category: controllers.NewCategoryController(serviceContainer),
 		product:  controllers.NewProductController(serviceContainer),
 		customer: controllers.NewCustomerController(serviceContainer),
 		order:    controllers.NewOrderController(serviceContainer),
 	}
-}
-
-func (c *RestContainer) Manager() *controllers.ManagerController {
-	return c.manager
-}
-
-func (c *RestContainer) Store() *controllers.StoreController {
-	return c.store
 }
 
 func (c *RestContainer) Category() *controllers.CategoryController {

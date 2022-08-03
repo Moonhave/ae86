@@ -60,9 +60,6 @@ func (s *OrderStorage) GetAllBy(filter adapter.OrderFilter) (result []model.Orde
 			if filter.CustomerID != nil && *filter.CustomerID != 0 {
 				db = db.Where("customer_id = ?", filter.CustomerID)
 			}
-			if filter.StoreID != nil && *filter.StoreID != 0 {
-				db = db.Where("store_id = ?", filter.StoreID)
-			}
 			return db
 		}).
 		Find(&result).
