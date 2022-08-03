@@ -27,7 +27,7 @@ func (s *ManagerStorage) GetByID(id uint) (result model.Manager, err error) {
 
 	err = s.db.
 		Model(&model.Manager{}).
-		Where("id = ? AND is_deleted = ?", id, false).
+		Where("id = ?", id).
 		First(&result).
 		Error
 	return
@@ -45,7 +45,7 @@ func (s *ManagerStorage) GetByUsername(username string) (result model.Manager, e
 
 	err = s.db.
 		Model(&model.Manager{}).
-		Where("username = ? AND is_deleted = ?", username, false).
+		Where("username = ?", username).
 		First(&result).
 		Error
 	return
@@ -82,7 +82,7 @@ func (s *ManagerStorage) Update(id uint, manager model.Manager) (err error) {
 
 	err = s.db.
 		Model(&model.Manager{}).
-		Where("id = ? AND is_deleted = ?", id, false).
+		Where("id = ?", id).
 		Updates(&manager).
 		Error
 	return
@@ -101,7 +101,7 @@ func (s *ManagerStorage) Delete(id uint) (err error) {
 	err = s.db.
 		Model(&model.Manager{}).
 		Where("id = ?", id).
-		UpdateColumn("is_deleted", true).
+		Delete(&model.Manager{}).
 		Error
 	return
 }

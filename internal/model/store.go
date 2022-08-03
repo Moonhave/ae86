@@ -3,7 +3,7 @@ package model
 import "time"
 
 type Store struct {
-	Model
+	ID               uint          `gorm:"column:id;primaryKey"`
 	Title            string        `gorm:"column:title;not null"`
 	Info             string        `gorm:"column:info"`
 	Address          string        `gorm:"column:address;not null"`
@@ -15,6 +15,8 @@ type Store struct {
 	DeliveryPrice    int           `gorm:"column:delivery_price;check:delivery_price > 0;not null"`
 	ContactPhone     string        `gorm:"column:contact_phone;not null"`
 	ManagerID        uint          `gorm:"column:manager_id"`
+	CreatedAt        time.Time     `gorm:"column:created_at"`
+	UpdatedAt        time.Time     `gorm:"column:updated_at"`
 
 	Manager *Manager
 }

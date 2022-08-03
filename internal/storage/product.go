@@ -28,7 +28,7 @@ func (s *ProductStorage) GetByID(id uint) (result model.Product, err error) {
 
 	err = s.db.
 		Model(&model.Product{}).
-		Where("id = ? AND is_deleted = ?", id, false).
+		Where("id = ?", id).
 		First(&result).
 		Error
 	return
@@ -58,9 +58,6 @@ func (s *ProductStorage) GetAllBy(filter adapter.ProductFilter) (result []model.
 			}
 			if filter.IsActive != nil {
 				db = db.Where("is_active = ?", filter.IsActive)
-			}
-			if filter.IsDeleted != nil {
-				db = db.Where("is_deleted = ?", filter.IsDeleted)
 			}
 			if filter.CategoryID != nil && *filter.CategoryID != 0 {
 				db = db.Where("category_id = ?", filter.CategoryID)
@@ -103,7 +100,7 @@ func (s *ProductStorage) Update(id uint, product model.Product) (err error) {
 
 	err = s.db.
 		Model(&model.Product{}).
-		Where("id = ? AND is_deleted = ?", id, false).
+		Where("id = ?", id).
 		Updates(&product).
 		Error
 	return
@@ -122,7 +119,7 @@ func (s *ProductStorage) Delete(id uint) (err error) {
 	err = s.db.
 		Model(&model.Product{}).
 		Where("id = ?", id).
-		UpdateColumn("is_deleted", true).
+		Delete(&model.Product{}).
 		Error
 	return
 }

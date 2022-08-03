@@ -64,7 +64,7 @@ func (s *StoreStorage) Update(id uint, store model.Store) (err error) {
 
 	err = s.db.
 		Model(&model.Store{}).
-		Where("id = ? AND is_deleted = ?", id, false).
+		Where("id = ?", id).
 		Updates(&store).
 		Error
 	return
@@ -83,7 +83,7 @@ func (s *StoreStorage) Delete(id uint) (err error) {
 	err = s.db.
 		Model(&model.Store{}).
 		Where("id = ?", id).
-		UpdateColumn("is_deleted", true).
+		Delete(&model.Store{}).
 		Error
 	return
 }
