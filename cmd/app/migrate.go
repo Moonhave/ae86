@@ -29,8 +29,6 @@ var migrateCmd = &cli.Command{
 		}
 
 		err = db.AutoMigrate(
-			&model.Manager{},
-			&model.Store{},
 			&model.Category{},
 			&model.Product{},
 			&model.Customer{},

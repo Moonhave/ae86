@@ -18,11 +18,7 @@ func RegisterButtonCallbacks(bot *tele.Bot, handlers *container.HandlerContainer
 	bot.Handle(&view.BtnCash, handlers.Order().SetCashAsPaymentMethod)
 	bot.Handle(&view.BtnCard, handlers.Order().SetCardAsPaymentMethod)
 
-	bot.Handle(&view.BtnInfo, handlers.Store().SendInfo)
-
 	bot.Handle(&view.BtnOrderList, handlers.Order().SendOrderList)
-
-	bot.Handle(&view.BtnContactManager, handlers.Manager().SendManagerDetails)
 
 	bot.Handle(&view.BtnBack, handlers.General().GoBackToMenu)
 	bot.Handle(&view.BtnInlineBack, handlers.General().GoBackToMenu)

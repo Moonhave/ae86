@@ -33,24 +33,6 @@ func (s *CategoryStorage) GetByID(id uint) (result model.Category, err error) {
 	return
 }
 
-func (s *CategoryStorage) GetAllByStoreID(storeID uint) (result []model.Category, err error) {
-	defer func() {
-		if err != nil {
-			logger.Log.WithFields(logrus.Fields{
-				"error":   err,
-				"storeID": storeID,
-			}).Error("CategoryStorage.GetAllByStoreID failed")
-		}
-	}()
-
-	err = s.db.
-		Model(&model.Category{}).
-		Where("store_id = ?", storeID).
-		Find(&result).
-		Error
-	return
-}
-
 func (s *CategoryStorage) Create(category model.Category) (id uint, err error) {
 	defer func() {
 		if err != nil {

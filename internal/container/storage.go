@@ -7,8 +7,6 @@ import (
 )
 
 type storageContainer struct {
-	manager   *storage.ManagerStorage
-	store     *storage.StoreStorage
 	category  *storage.CategoryStorage
 	product   *storage.ProductStorage
 	customer  *storage.CustomerStorage
@@ -18,22 +16,12 @@ type storageContainer struct {
 
 func NewStorageContainer(db *gorm.DB) *storageContainer {
 	return &storageContainer{
-		manager:   storage.NewManagerStorage(db),
-		store:     storage.NewStoreStorage(db),
 		category:  storage.NewCategoryStorage(db),
 		product:   storage.NewProductStorage(db),
 		customer:  storage.NewCustomerStorage(db),
 		order:     storage.NewOrderStorage(db),
 		orderItem: storage.NewOrderItemStorage(db),
 	}
-}
-
-func (c *storageContainer) Manager() adapter.ManagerStorage {
-	return c.manager
-}
-
-func (c *storageContainer) Store() adapter.StoreStorage {
-	return c.store
 }
 
 func (c *storageContainer) Category() adapter.CategoryStorage {

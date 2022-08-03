@@ -12,12 +12,10 @@ type Order struct {
 	PaymentMethod      enums.PaymentMethod `gorm:"column:payment_method;not null"`
 	CancellationReason string              `gorm:"column:cancellation_reason"`
 	CustomerID         uint                `gorm:"column:customer_id"`
-	StoreID            uint                `gorm:"column:store_id"`
 	CreatedAt          time.Time           `gorm:"column:created_at"`
 	UpdatedAt          time.Time           `gorm:"column:updated_at"`
 
 	Customer *Customer
-	Store    *Store
 }
 
 func (Order) TableName() string {
