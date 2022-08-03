@@ -25,20 +25,6 @@ type CustomerInfo struct {
 	PreferredPaymentMethod  enums.PaymentMethod
 }
 
-func (h *CustomerHandler) CreateCustomer(c tele.Context) error {
-	customerId, err := h.service.Customer().Create(model.Customer{
-		ExternalID: uint(c.Sender().ID),
-		Username:   c.Sender().Username,
-		FirstName:  c.Sender().FirstName,
-		LastName:   c.Sender().LastName,
-	})
-	if err != nil {
-		return err
-	}
-	temp.CreateCustomer(c, customerId)
-	return c.Send(view.MenuMessage, view.Menu)
-}
-
 func (h *CustomerHandler) TryStoreAddress(c tele.Context) error {
 	if !temp.GetCurrentCustomer(c).IsRequiredToSendAddress {
 		return c.Send(view.UnknownCommandMessage, view.EmptyMenu)
