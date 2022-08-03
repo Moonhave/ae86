@@ -20,5 +20,23 @@ func (h *CategoryHandler) GetAllCategories() (categories []model.Category, err e
 }
 
 func (h *CategoryHandler) SendCategories(c telebot.Context) error {
-	return c.Send(view.CategoryMenuMessage, view.CategoryMenu)
+	categories, err := h.service.Category().ListAll()
+	if err != nil {
+		return err
+	}
+
+	categoryMenu := &telebot.ReplyMarkup{ResizeKeyboard: true}
+	categoryMenuRows := make([]telebot.Row, 0)
+
+	for _, category := range categories {
+		btn := categoryMenu.Text(category.Title)
+		categoryMenuRows = append(categoryMenuRows, categoryMenu.Row(btn))
+		c.Bot().Handle(&btn, func(ctx telebot.Context) error {
+			// todo
+			return nil
+		})
+	}
+
+	categoryMenu.Reply(categoryMenuRows...)
+	return c.Send(view.CategoryMenuMessage, categoryMenu)
 }

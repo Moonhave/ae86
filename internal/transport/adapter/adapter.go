@@ -19,6 +19,8 @@ type ProductService interface {
 }
 
 type CustomerService interface {
+	ExistsByExternalID(externalID uint) (result bool, err error)
+	ByExternalID(externalID uint) (result model.Customer, err error)
 	Create(customer model.Customer) (id uint, err error)
 }
 

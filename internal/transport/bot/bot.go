@@ -21,7 +21,7 @@ func Start(config Config, handlers *container.HandlerContainer) error {
 		return err
 	}
 
-	LoadCategories(bot, handlers)
+	//LoadCategories(bot, handlers)
 	InitializeMenuReplies()
 	RegisterCommands(bot, handlers)
 	RegisterButtonCallbacks(bot, handlers)
@@ -128,8 +128,6 @@ func InitializeMenuReplies() {
 		view.Menu.Row(view.BtnOrderList),
 		view.Menu.Row(view.BtnContactManager),
 	)
-
-	view.CategoryMenu.Reply(view.CategoryMenuRows...)
 
 	view.CartMenu.Reply(
 		view.CartMenu.Row(view.BtnClearCart),

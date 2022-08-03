@@ -6,7 +6,7 @@ import (
 )
 
 func RegisterCommands(bot *tele.Bot, handlers *container.HandlerContainer) {
-	bot.Handle("/start", handlers.Customer().CreateCustomer)
+	bot.Handle("/start", handlers.General().Start)
 
 	bot.Handle("/categories", handlers.Category().SendCategories)
 }
