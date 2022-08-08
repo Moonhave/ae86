@@ -4,7 +4,9 @@ import (
 	"ae86/internal/model"
 	"ae86/internal/transport/adapter"
 	"ae86/internal/transport/bot/view"
+	"errors"
 	tele "gopkg.in/telebot.v3"
+	"gorm.io/gorm"
 )
 
 func NewGeneralHandler(service adapter.ServiceContainer) *GeneralHandler {
@@ -19,7 +21,7 @@ func (h *GeneralHandler) Start(c tele.Context) error {
 	customerExternalID := c.Sender().ID
 
 	exists, err := h.service.Customer().ExistsByExternalID(uint(customerExternalID))
-	if err != nil {
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return err
 	}
 
