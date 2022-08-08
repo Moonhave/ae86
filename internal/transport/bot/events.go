@@ -1,10 +1,12 @@
 package bot
 
 import (
-	"ae86/internal/container"
+	"ae86/internal/transport/bot/view"
 	tele "gopkg.in/telebot.v3"
 )
 
-func RegisterEvents(bot *tele.Bot, handlers *container.HandlerContainer) {
-	bot.Handle(tele.OnText, handlers.Customer().TryStoreAddress)
+func RegisterEvents(bot *tele.Bot) {
+	bot.Handle(tele.OnText, func(c tele.Context) error {
+		return c.Send(view.UnknownCommandMessage, view.EmptyMenu)
+	})
 }

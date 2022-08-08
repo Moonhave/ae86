@@ -15,6 +15,7 @@ type CategoryService interface {
 }
 
 type ProductService interface {
+	ByID(id uint) (result model.Product, err error)
 	ListByCategoryID(categoryID uint) (result []model.Product, err error)
 }
 
@@ -27,6 +28,11 @@ type CustomerService interface {
 type OrderService interface {
 	Create(order model.Order) (id uint, err error)
 	ListBy(filter OrderFilter) (result []model.Order, err error)
+	Update(id uint, order model.Order) (err error)
+	Delete(id uint) (err error)
 }
 
-type OrderItemService interface{}
+type OrderItemService interface {
+	Create(orderItem model.OrderItem) (id uint, err error)
+	ListByOrderID(orderID uint) (result []model.OrderItem, err error)
+}
