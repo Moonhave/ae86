@@ -44,6 +44,8 @@ func (h *CategoryHandler) SendCategories(c tele.Context) error {
 		})
 	}
 
+	categoryMenuRows = append(categoryMenuRows, categoryMenu.Row(view.BtnCategoryBack))
+
 	categoryMenu.Reply(categoryMenuRows...)
 	return c.Send(view.CategoryMenuMessage, categoryMenu)
 }

@@ -132,9 +132,13 @@ func (h *OrderHandler) SetCardAsPaymentMethod(c tele.Context) error {
 }
 
 func (h *OrderHandler) SendOrderList(c tele.Context) error {
-	id := uint(c.Sender().ID)
+	customer, err := h.service.Customer().ByExternalID(uint(c.Sender().ID))
+	if err != nil {
+		return err
+	}
+
 	orderList, err := h.service.Order().ListBy(adapter.OrderFilter{
-		CustomerID: &id,
+		CustomerID: &customer.ID,
 	})
 
 	if err != nil {
@@ -147,7 +151,7 @@ func (h *OrderHandler) SendOrderList(c tele.Context) error {
 
 	var text string
 	for _, order := range orderList {
-		text += fmt.Sprintf("Заказ %d:\n%s\n%s\n", order.ID, order.Address, orderStateToString(order.State))
+		text += fmt.Sprintf("**Заказ №%d**:\nАдрес - %s\nСостояние - %s\n", order.ID, order.Address, orderStateToString(order.State))
 	}
 
 	return c.Send(text, view.EmptyMenu)
