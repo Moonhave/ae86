@@ -52,6 +52,26 @@ func (s *CustomerStorage) ByExternalID(externalID uint) (result model.Customer, 
 	return
 }
 
+func (s *CustomerStorage) IsExistsByExternalID(externalID uint) (result bool, err error) {
+	defer func() {
+		if err != nil {
+			logger.Log.WithFields(logrus.Fields{
+				"error":      err,
+				"externalID": externalID,
+			}).Error("CustomerStorage.IsExistsByExternalID failed")
+		}
+	}()
+
+	c := model.Customer{}
+	err = s.db.
+		Model(&model.Customer{}).
+		Where("external_id = ?", externalID).
+		First(&c).
+		Error
+	result = c.ID != 0
+	return
+}
+
 func (s *CustomerStorage) Create(customer model.Customer) (id uint, err error) {
 	defer func() {
 		if err != nil {

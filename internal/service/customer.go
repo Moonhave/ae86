@@ -3,8 +3,6 @@ package service
 import (
 	"ae86/internal/model"
 	"ae86/internal/service/adapter"
-	"errors"
-	"gorm.io/gorm"
 )
 
 type CustomerService struct {
@@ -16,13 +14,7 @@ func NewCustomerService(storage adapter.StorageContainer) *CustomerService {
 }
 
 func (c *CustomerService) ExistsByExternalID(externalID uint) (result bool, err error) {
-	customer, err := c.storage.Customer().ByExternalID(externalID)
-	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
-		return
-	}
-
-	result = customer.ID != 0
-	return
+	return c.storage.Customer().IsExistsByExternalID(externalID)
 }
 
 func (c *CustomerService) ByExternalID(externalID uint) (result model.Customer, err error) {
