@@ -32,10 +32,11 @@ func (h *CategoryHandler) SendCategories(c tele.Context) error {
 	categoryMenuRows := make([]tele.Row, 0)
 
 	for _, category := range categories {
+		categoryID := category.ID
 		btn := categoryMenu.Text(category.Title)
 		categoryMenuRows = append(categoryMenuRows, categoryMenu.Row(btn))
 		c.Bot().Handle(&btn, func(ctx tele.Context) error {
-			products, err := h.service.Product().ListByCategoryID(category.ID)
+			products, err := h.service.Product().ListByCategoryID(categoryID)
 			if err != nil {
 				return err
 			}
