@@ -29,6 +29,7 @@ type ProductStorage interface {
 type CustomerStorage interface {
 	ByID(id uint) (result model.Customer, err error)
 	ByExternalID(externalID uint) (result model.Customer, err error)
+	IsExistsByExternalID(externalID uint) (result bool, err error)
 	Create(customer model.Customer) (id uint, err error)
 }
 
