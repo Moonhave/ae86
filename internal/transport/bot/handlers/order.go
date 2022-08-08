@@ -4,7 +4,6 @@ import (
 	"ae86/internal/enums"
 	"ae86/internal/model"
 	"ae86/internal/transport/adapter"
-	"ae86/internal/transport/bot/temp"
 	"ae86/internal/transport/bot/view"
 	"fmt"
 	tele "gopkg.in/telebot.v3"
@@ -19,53 +18,115 @@ type OrderHandler struct {
 }
 
 func (h *OrderHandler) SendCart(c tele.Context) error {
-	cart := temp.GetCurrentCustomer(c).Cart
-	if len(cart) == 0 {
-		return c.Send(view.CartEmptyMessage, view.EmptyMenu)
+	order, err := h.tryGetCurrentOrder(c)
+	if err != nil {
+		return c.Send(err.Error(), view.EmptyMenu)
 	}
+
+	orderItems, err := h.service.OrderItem().ListByOrderID(order.ID)
+	if err != nil {
+		return err
+	}
+
 	text := ""
-	for _, orderItem := range cart {
-		product := orderItem.Product
+	priceSum := 0
+	for _, orderItem := range orderItems {
+		product, err := h.service.Product().ByID(orderItem.ProductID)
+		if err != nil {
+			return err
+		}
 		text += fmt.Sprintf("%s\nЦена: %dx%d=%d тенге\n\n", product.Title,
 			product.Price, orderItem.Amount, product.Price*orderItem.Amount)
+		priceSum += product.Price * orderItem.Amount
 	}
-	text += "Сумма: " + fmt.Sprintf("%d", priceSum(cart)) + " тенге"
+	text += "Сумма: " + fmt.Sprintf("%d", priceSum) + " тенге"
 	return c.Send(text, view.CartMenu)
 }
 
 func (h *OrderHandler) ClearCart(c tele.Context) error {
-	temp.GetCurrentCustomer(c).Cart = []*model.OrderItem{}
+	order, err := h.tryGetCurrentOrder(c)
+	if err != nil {
+		return c.Send(err.Error(), view.EmptyMenu)
+	}
+
+	err = h.service.Order().Delete(order.ID)
+	if err != nil {
+		return err
+	}
+
 	return c.Send(view.CartEmptyMessage, view.EmptyMenu)
 }
 
 func (h *OrderHandler) PromptAddressInput(c tele.Context) error {
-	if len(temp.GetCurrentCustomer(c).Cart) == 0 {
-		return c.Send(view.CartEmptyMessage, view.EmptyMenu)
+	_, err := h.tryGetCurrentOrder(c)
+	if err != nil {
+		return c.Send(err.Error(), view.EmptyMenu)
 	}
 
-	temp.GetCurrentCustomer(c).IsRequiredToSendAddress = true
+	c.Bot().Handle(tele.OnText, func(c tele.Context) error {
+		return h.SetOrderAddress(c)
+	})
 
-	err := c.Send(view.AddressMenuMessage, view.AddressMenu)
+	err = c.Send(view.AddressMenuMessage, view.AddressMenu)
 	if err != nil {
 		return err
 	}
 	return c.Respond()
 }
 
+func (h *OrderHandler) SetOrderAddress(c tele.Context) error {
+	order, err := h.tryGetCurrentOrder(c)
+	if err != nil {
+		return c.Send(err.Error(), view.EmptyMenu)
+	}
+
+	order.Address = c.Message().Text
+
+	if err = h.service.Order().Update(order.ID, order); err != nil {
+		return err
+	}
+
+	c.Bot().Handle(tele.OnText, func(c tele.Context) error {
+		return c.Send(view.UnknownCommandMessage, view.EmptyMenu)
+	})
+
+	return c.Send(view.PaymentMethodMenuMessage, view.PaymentMethodMenu)
+}
+
 func (h *OrderHandler) CancelOrder(c tele.Context) error {
-	temp.GetCurrentCustomer(c).IsRequiredToSendAddress = false
+	c.Bot().Handle(tele.OnText, func(c tele.Context) error {
+		return c.Send(view.UnknownCommandMessage, view.EmptyMenu)
+	})
 
 	return c.Send(view.MenuMessage, view.Menu)
 }
 
 func (h *OrderHandler) SetCashAsPaymentMethod(c tele.Context) error {
-	temp.GetCurrentCustomer(c).PreferredPaymentMethod = enums.PaymentMethodCash
+	order, err := h.tryGetCurrentOrder(c)
+	if err != nil {
+		return c.Send(err.Error(), view.EmptyMenu)
+	}
+
+	order.PaymentMethod = enums.PaymentMethodCash
+
+	if err = h.service.Order().Update(order.ID, order); err != nil {
+		return err
+	}
 
 	return h.sendOrder(c)
 }
 
 func (h *OrderHandler) SetCardAsPaymentMethod(c tele.Context) error {
-	temp.GetCurrentCustomer(c).PreferredPaymentMethod = enums.PaymentMethodCard
+	order, err := h.tryGetCurrentOrder(c)
+	if err != nil {
+		return c.Send(err.Error(), view.EmptyMenu)
+	}
+
+	order.PaymentMethod = enums.PaymentMethodCard
+
+	if err = h.service.Order().Update(order.ID, order); err != nil {
+		return err
+	}
 
 	return h.sendOrder(c)
 }
@@ -93,28 +154,38 @@ func (h *OrderHandler) SendOrderList(c tele.Context) error {
 }
 
 func (h *OrderHandler) sendOrder(c tele.Context) error {
-	order := model.Order{
-		CustomerID: temp.GetCurrentCustomer(c).CustomerID,
-		Address:    temp.GetCurrentCustomer(c).PreferredAddress,
-		State:      enums.OrderStatePending,
+	order, err := h.tryGetCurrentOrder(c)
+	if err != nil {
+		return c.Send(err.Error(), view.EmptyMenu)
 	}
 
-	orderId, err := h.service.Order().Create(order)
-	if err != nil {
+	order.State = enums.OrderStateAccepted
+
+	if err = h.service.Order().Update(order.ID, order); err != nil {
 		return err
 	}
 
-	temp.GetCurrentCustomer(c).Cart = []*model.OrderItem{}
-
-	c.Send(fmt.Sprintf("%s\nID Заказа: %d", view.OrderMessage, orderId), view.EmptyMenu)
+	c.Send(fmt.Sprintf("%s\nID Заказа: %d", view.OrderMessage, order.ID), view.EmptyMenu)
 	return c.Send(view.MenuMessage, view.Menu)
 }
 
-func priceSum(products []*model.OrderItem) (sum int) {
-	for _, product := range products {
-		sum += product.Product.Price * product.Amount
+func (h *OrderHandler) tryGetCurrentOrder(c tele.Context) (model.Order, error) {
+	customer, err := h.service.Customer().ByExternalID(uint(c.Sender().ID))
+	if err != nil {
+		return model.Order{}, err
 	}
-	return sum
+
+	state := enums.OrderStatePending
+	orders, err := h.service.Order().ListBy(adapter.OrderFilter{CustomerID: &customer.ID, State: &state})
+	if err != nil {
+		return model.Order{}, err
+	}
+
+	if len(orders) == 0 {
+		return model.Order{}, fmt.Errorf(view.CartEmptyMessage)
+	}
+
+	return orders[0], nil
 }
 
 func orderStateToString(state enums.OrderState) string {

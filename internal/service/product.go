@@ -13,6 +13,10 @@ func NewProductService(storage adapter.StorageContainer) *ProductService {
 	return &ProductService{storage: storage}
 }
 
+func (p *ProductService) ByID(id uint) (result model.Product, err error) {
+	return p.storage.Product().ByID(id)
+}
+
 func (p *ProductService) ListByCategoryID(categoryID uint) (result []model.Product, err error) {
 	return p.storage.Product().ListBy(adapter.ProductFilter{CategoryID: &categoryID})
 }

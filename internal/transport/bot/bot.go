@@ -20,7 +20,7 @@ func Start(config Config, handlers *container.HandlerContainer) error {
 	InitializeMenuReplies()
 	RegisterCommands(bot, handlers)
 	RegisterButtonCallbacks(bot, handlers)
-	RegisterEvents(bot, handlers)
+	RegisterEvents(bot)
 
 	bot.Start()
 	return nil

@@ -1,9 +1,9 @@
 package handlers
 
 import (
+	"ae86/internal/enums"
 	"ae86/internal/model"
 	"ae86/internal/transport/adapter"
-	"ae86/internal/transport/bot/temp"
 	"ae86/internal/transport/bot/view"
 	"fmt"
 	tele "gopkg.in/telebot.v3"
@@ -40,7 +40,7 @@ func (h *CategoryHandler) SendCategories(c tele.Context) error {
 				return err
 			}
 
-			return sendProductsByCategoryID(ctx, products)
+			return h.sendProductsByCategoryID(ctx, products)
 		})
 	}
 
@@ -48,7 +48,7 @@ func (h *CategoryHandler) SendCategories(c tele.Context) error {
 	return c.Send(view.CategoryMenuMessage, categoryMenu)
 }
 
-func sendProductsByCategoryID(c tele.Context, products []model.Product) error {
+func (h *CategoryHandler) sendProductsByCategoryID(c tele.Context, products []model.Product) error {
 	var messages []tele.Message
 
 	for i, product := range products {
@@ -65,7 +65,7 @@ func sendProductsByCategoryID(c tele.Context, products []model.Product) error {
 		p := product
 		text := fmt.Sprintf("%s\n%s\nЦена: %d тенге", p.Title, p.Description, p.Price)
 		c.Bot().Handle(&btnAddToCart, func(c tele.Context) error {
-			return handleAddToCartButton(c, products)
+			return h.handleAddToCartButton(c, products)
 		})
 
 		messages = append(messages, tele.Message{
@@ -82,7 +82,7 @@ func sendProductsByCategoryID(c tele.Context, products []model.Product) error {
 	return c.Respond()
 }
 
-func handleAddToCartButton(c tele.Context, products []model.Product) error {
+func (h *CategoryHandler) handleAddToCartButton(c tele.Context, products []model.Product) error {
 	numMenu := &tele.ReplyMarkup{ResizeKeyboard: true}
 
 	var buttonRows []tele.Row
@@ -98,9 +98,35 @@ func handleAddToCartButton(c tele.Context, products []model.Product) error {
 			buttonRows = append(buttonRows, numMenu.Row(currentRow...))
 			currentRow = []tele.Btn{}
 		}
-		orderItem := &model.OrderItem{Product: product, Amount: i}
+		orderItem := model.OrderItem{ProductID: product.ID, Amount: i}
 		c.Bot().Handle(&btn, func(c tele.Context) error {
-			temp.AddToCart(c, orderItem)
+			customer, err := h.service.Customer().ByExternalID(uint(c.Sender().ID))
+			if err != nil {
+				return err
+			}
+
+			state := enums.OrderStatePending
+			orders, err := h.service.Order().ListBy(adapter.OrderFilter{CustomerID: &customer.ID, State: &state})
+			if err != nil {
+				return err
+			}
+
+			var orderId uint
+			if len(orders) == 0 {
+				orderId, err = h.service.Order().Create(model.Order{CustomerID: customer.ID, State: state})
+				if err != nil {
+					return err
+				}
+			} else {
+				orderId = orders[0].ID
+			}
+
+			orderItem.OrderID = orderId
+
+			_, err = h.service.OrderItem().Create(orderItem)
+			if err != nil {
+				return err
+			}
 			return updateProductInlineMenu(c)
 		})
 	}
