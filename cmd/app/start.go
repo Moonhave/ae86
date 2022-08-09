@@ -14,6 +14,7 @@ var startCmd = &cli.Command{
 	Before: loadConfig,
 	Action: func(c *cli.Context) error {
 		config := getConfigFrom(c.Context)
-		return app.Run(config)
+		app.Run(config)
+		return nil
 	},
 }

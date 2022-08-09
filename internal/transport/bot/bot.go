@@ -3,10 +3,11 @@ package bot
 import (
 	"ae86/internal/container"
 	"ae86/internal/transport/bot/view"
+	"ae86/pkg/logger"
 	tele "gopkg.in/telebot.v3"
 )
 
-func Start(config Config, handlers *container.HandlerContainer) error {
+func Start(config Config, handlers *container.HandlerContainer) {
 	bot, err := tele.NewBot(tele.Settings{
 		Token: config.Token,
 		Poller: &tele.LongPoller{
@@ -14,7 +15,7 @@ func Start(config Config, handlers *container.HandlerContainer) error {
 		},
 	})
 	if err != nil {
-		return err
+		logger.Log.Fatalf("failed to create bot: %v", err)
 	}
 
 	InitializeMenuReplies()
@@ -23,7 +24,6 @@ func Start(config Config, handlers *container.HandlerContainer) error {
 	RegisterEvents(bot)
 
 	bot.Start()
-	return nil
 }
 
 func InitializeMenuReplies() {
