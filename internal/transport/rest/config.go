@@ -1,5 +1,7 @@
 package rest
 
+import "net"
+
 type Config struct {
 	Host      string
 	Port      string
@@ -9,5 +11,5 @@ type Config struct {
 }
 
 func (c Config) Address() string {
-	return c.Host + ":" + c.Port
+	return net.JoinHostPort(c.Host, c.Port)
 }

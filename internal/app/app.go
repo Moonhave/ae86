@@ -33,25 +33,30 @@ func Run(conf config.Config) {
 	restControllers := container.NewRestContainer(service)
 	botHandlers := container.NewHandlerContainer(service)
 
-	transportConfig := transport.Config{
-		Rest: rest.Config{
-			Host:      conf.HTTP.Host,
-			Port:      conf.HTTP.Port,
-			TLSEnable: conf.HTTP.TLSEnable,
-			CertFile:  conf.HTTP.CertFile,
-			KeyFile:   conf.HTTP.KeyFile,
-		},
-		Bot: bot.Config{
-			Token:             conf.Bot.Token,
-			LongPollerTimeout: conf.Bot.LongPollerTimeout,
-		},
-	}
-
+	transportConfig := appConfigToTransportConfig(conf)
 	transport.Start(transportConfig, restControllers, botHandlers)
+
+	logger.Log.Info("app started...")
 
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGTERM, syscall.SIGINT)
 	<-quit
 
 	// graceful shutdown...
+}
+
+func appConfigToTransportConfig(appConfig config.Config) transport.Config {
+	return transport.Config{
+		Rest: rest.Config{
+			Host:      appConfig.HTTP.Host,
+			Port:      appConfig.HTTP.Port,
+			TLSEnable: appConfig.HTTP.TLSEnable,
+			CertFile:  appConfig.HTTP.CertFile,
+			KeyFile:   appConfig.HTTP.KeyFile,
+		},
+		Bot: bot.Config{
+			Token:             appConfig.Bot.Token,
+			LongPollerTimeout: appConfig.Bot.LongPollerTimeout,
+		},
+	}
 }
