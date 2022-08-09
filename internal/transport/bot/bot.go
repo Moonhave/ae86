@@ -40,13 +40,18 @@ func InitializeMenuReplies() {
 		view.CartMenu.Row(view.BtnCategoryBack, view.BtnOrder),
 	)
 
-	view.AddressMenu.Reply(
-		view.AddressMenu.Row(view.BtnCancelOrder),
+	view.OrderInfoMenu.Reply(
+		view.OrderInfoMenu.Row(view.BtnCancelOrder),
 	)
 
 	view.PaymentMethodMenu.Reply(
 		view.PaymentMethodMenu.Row(view.BtnCard, view.BtnCash),
 		view.PaymentMethodMenu.Row(view.BtnCancelOrder),
+	)
+
+	view.ConfirmOrderMenu.Reply(
+		view.ConfirmOrderMenu.Row(view.BtnConfirmOrder),
+		view.ConfirmOrderMenu.Row(view.BtnCancelConfirmOrder),
 	)
 
 	view.EmptyMenu.Reply(

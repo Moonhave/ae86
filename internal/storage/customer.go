@@ -89,3 +89,22 @@ func (s *CustomerStorage) Create(customer model.Customer) (id uint, err error) {
 	id = customer.ID
 	return
 }
+
+func (s *CustomerStorage) Update(id uint, customer model.Customer) (err error) {
+	defer func() {
+		if err != nil {
+			logger.Log.WithFields(logrus.Fields{
+				"error":    err,
+				"id":       id,
+				"customer": customer,
+			}).Error("CustomerStorage.Update failed")
+		}
+	}()
+
+	err = s.db.
+		Model(&model.Customer{}).
+		Where("id = ?", id).
+		Updates(&customer).
+		Error
+	return
+}

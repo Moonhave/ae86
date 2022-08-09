@@ -24,3 +24,7 @@ func (c *CustomerService) ByExternalID(externalID uint) (result model.Customer, 
 func (c *CustomerService) Create(customer model.Customer) (id uint, err error) {
 	return c.storage.Customer().Create(customer)
 }
+
+func (c *CustomerService) Update(id uint, customer model.Customer) (err error) {
+	return c.storage.Customer().Update(id, customer)
+}
