@@ -8,9 +8,12 @@ import (
 	"ae86/internal/transport/rest"
 	"ae86/pkg/client/postgres"
 	"ae86/pkg/logger"
+	"os"
+	"os/signal"
+	"syscall"
 )
 
-func Run(conf config.Config) error {
+func Run(conf config.Config) {
 	db, err := postgres.Connect(postgres.Config{
 		Username: conf.DB.Username,
 		Password: conf.DB.Password,
@@ -20,7 +23,7 @@ func Run(conf config.Config) error {
 		SSLMode:  conf.DB.SSLMode,
 	})
 	if err != nil {
-		return err
+		logger.Log.Fatalf("failed to connect to database: %v", err)
 	}
 
 	logger.Log.Info("connected to database...")
@@ -44,5 +47,11 @@ func Run(conf config.Config) error {
 		},
 	}
 
-	return transport.Start(transportConfig, restControllers, botHandlers)
+	transport.Start(transportConfig, restControllers, botHandlers)
+
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGTERM, syscall.SIGINT)
+	<-quit
+
+	// graceful shutdown...
 }
