@@ -23,6 +23,7 @@ type CustomerService interface {
 	ExistsByExternalID(externalID uint) (result bool, err error)
 	ByExternalID(externalID uint) (result model.Customer, err error)
 	Create(customer model.Customer) (id uint, err error)
+	Update(customerID uint, customer model.Customer) (err error)
 }
 
 type OrderService interface {

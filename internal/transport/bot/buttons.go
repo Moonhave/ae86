@@ -18,6 +18,9 @@ func RegisterButtonCallbacks(bot *tele.Bot, handlers *container.HandlerContainer
 	bot.Handle(&view.BtnCash, handlers.Order().SetCashAsPaymentMethod)
 	bot.Handle(&view.BtnCard, handlers.Order().SetCardAsPaymentMethod)
 
+	bot.Handle(&view.BtnConfirmOrder, handlers.Order().SendOrder)
+	bot.Handle(&view.BtnCancelConfirmOrder, handlers.Order().CancelOrder)
+
 	bot.Handle(&view.BtnOrderList, handlers.Order().SendOrderList)
 
 	bot.Handle(&view.BtnBack, handlers.General().GoBackToMenu)

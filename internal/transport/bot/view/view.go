@@ -15,12 +15,12 @@ var (
 	InfoMessage           = "Здесь пока что пусто)"
 	DefaultManagerMessage = "Контакт менеджера: @danqzq"
 	EmptyMessage          = "Пусто"
+	ConfirmOrderMessage   = "Вы уверены, что хотите оформить заказ?"
 	OrderMessage          = "Заказ оформлен"
 	SelectAmountMessage   = "Выберите количество"
 	AddedToCartMessage    = "Товар добавлен в корзину"
 	CartEmptyMessage      = "Корзина пуста"
 
-	CategoryMenuRows    []tele.Row
 	CategoryMenu        = &tele.ReplyMarkup{ResizeKeyboard: true}
 	CategoryMenuMessage = "Выберите категорию:"
 	BtnCategoryBack     = CategoryMenu.Text("📋 Назад в главное меню")
@@ -34,14 +34,20 @@ var (
 	BtnInlineOrder      = ProductMenu.Data("🚘 Оформить заказ", "order")
 	BtnInlineBack       = ProductMenu.Data("📋 Вернуться в главное меню", "back")
 
-	AddressMenu        = &tele.ReplyMarkup{ResizeKeyboard: true}
+	OrderInfoMenu      = &tele.ReplyMarkup{ResizeKeyboard: true}
 	AddressMenuMessage = "Введите адрес доставки:"
-	BtnCancelOrder     = AddressMenu.Text("❌ Отмена")
+	BtnCancelOrder     = OrderInfoMenu.Text("❌ Отмена")
+
+	PhoneMenuMessage = "Введите ваш номер телефона:"
 
 	PaymentMethodMenu        = &tele.ReplyMarkup{ResizeKeyboard: true}
 	PaymentMethodMenuMessage = "Выберите способ оплаты:"
 	BtnCard                  = PaymentMethodMenu.Text("💳 Кредитная карта")
 	BtnCash                  = PaymentMethodMenu.Text("💵 Наличными")
+
+	ConfirmOrderMenu      = &tele.ReplyMarkup{ResizeKeyboard: true}
+	BtnConfirmOrder       = ConfirmOrderMenu.Text("✅ Оформить заказ")
+	BtnCancelConfirmOrder = ConfirmOrderMenu.Text("❌ Отмена")
 
 	EmptyMenu = &tele.ReplyMarkup{ResizeKeyboard: true}
 	BtnBack   = EmptyMenu.Text("📋 Назад в главное меню")

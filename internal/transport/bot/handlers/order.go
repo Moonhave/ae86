@@ -67,7 +67,7 @@ func (h *OrderHandler) PromptAddressInput(c tele.Context) error {
 		return h.SetOrderAddress(c)
 	})
 
-	err = c.Send(view.AddressMenuMessage, view.AddressMenu)
+	err = c.Send(view.AddressMenuMessage, view.OrderInfoMenu)
 	if err != nil {
 		return err
 	}
@@ -87,7 +87,26 @@ func (h *OrderHandler) SetOrderAddress(c tele.Context) error {
 	}
 
 	c.Bot().Handle(tele.OnText, func(c tele.Context) error {
-		return c.Send(view.UnknownCommandMessage, view.EmptyMenu)
+		return h.SetOrderPhone(c)
+	})
+
+	return c.Send(view.PhoneMenuMessage, view.OrderInfoMenu)
+}
+
+func (h *OrderHandler) SetOrderPhone(c tele.Context) error {
+	customer, err := h.service.Customer().ByExternalID(uint(c.Sender().ID))
+	if err != nil {
+		return err
+	}
+
+	customer.Phone = c.Message().Text
+
+	if err = h.service.Customer().Update(customer.ID, customer); err != nil {
+		return err
+	}
+
+	c.Bot().Handle(tele.OnText, func(c tele.Context) error {
+		return h.SetOrderPhone(c)
 	})
 
 	return c.Send(view.PaymentMethodMenuMessage, view.PaymentMethodMenu)
@@ -113,7 +132,7 @@ func (h *OrderHandler) SetCashAsPaymentMethod(c tele.Context) error {
 		return err
 	}
 
-	return h.sendOrder(c)
+	return h.sendConfirmationRequest(c)
 }
 
 func (h *OrderHandler) SetCardAsPaymentMethod(c tele.Context) error {
@@ -128,7 +147,7 @@ func (h *OrderHandler) SetCardAsPaymentMethod(c tele.Context) error {
 		return err
 	}
 
-	return h.sendOrder(c)
+	return h.sendConfirmationRequest(c)
 }
 
 func (h *OrderHandler) SendOrderList(c tele.Context) error {
@@ -151,13 +170,36 @@ func (h *OrderHandler) SendOrderList(c tele.Context) error {
 
 	var text string
 	for _, order := range orderList {
-		text += fmt.Sprintf("**Заказ №%d**:\nАдрес - %s\nСостояние - %s\n", order.ID, order.Address, orderStateToString(order.State))
+		text += fmt.Sprintf("Заказ №%d:\nАдрес - %s\nСостояние - %s\n",
+			order.ID, order.Address, orderStateToString(order.State))
 	}
 
 	return c.Send(text, view.EmptyMenu)
 }
 
-func (h *OrderHandler) sendOrder(c tele.Context) error {
+func (h *OrderHandler) sendConfirmationRequest(c tele.Context) error {
+	customer, err := h.service.Customer().ByExternalID(uint(c.Sender().ID))
+	if err != nil {
+		return err
+	}
+
+	state := enums.OrderStatePending
+	orders, err := h.service.Order().ListBy(adapter.OrderFilter{CustomerID: &customer.ID, State: &state})
+	if err != nil {
+		return err
+	}
+
+	if len(orders) == 0 {
+		return fmt.Errorf(view.CartEmptyMessage)
+	}
+
+	order := orders[0]
+
+	return c.Send(fmt.Sprintf("%s\nАдрес: %s\nТелефон: %s\nСпособ оплаты: %s", view.ConfirmOrderMessage,
+		order.Address, customer.Phone, paymentMethodToString(order.PaymentMethod)), view.ConfirmOrderMenu)
+}
+
+func (h *OrderHandler) SendOrder(c tele.Context) error {
 	order, err := h.tryGetCurrentOrder(c)
 	if err != nil {
 		return c.Send(err.Error(), view.EmptyMenu)
@@ -190,6 +232,17 @@ func (h *OrderHandler) tryGetCurrentOrder(c tele.Context) (model.Order, error) {
 	}
 
 	return orders[0], nil
+}
+
+func paymentMethodToString(method enums.PaymentMethod) string {
+	switch method {
+	case enums.PaymentMethodCash:
+		return "наличные"
+	case enums.PaymentMethodCard:
+		return "карта"
+	default:
+		return "неизвестный"
+	}
 }
 
 func orderStateToString(state enums.OrderState) string {
